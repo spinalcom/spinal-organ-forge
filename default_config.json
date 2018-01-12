@@ -1,0 +1,29 @@
+{
+  "env": {
+    "SPINALHUB_PORT": 7777,
+    "SPINALHUB_IP": "127.0.0.1",
+    "INTERVAL": 2000,
+    "CLIENT_ID": "EDIT ME",
+    "CLIENT_SECRET": "EDIT ME",
+    "SPINAL_USER_ID": "EDIT ME",
+    "SPINAL_PASSWORD": "EDIT ME"
+  },
+  "env_test": {
+    "SPINALHUB_PORT": 7777,
+    "SPINALHUB_IP": "127.0.0.1",
+    "INTERVAL": 2000,
+    "CLIENT_ID": "EDIT ME",
+    "CLIENT_SECRET": "EDIT ME",
+    "SPINAL_USER_ID": "EDIT ME",
+    "SPINAL_PASSWORD": "EDIT ME"
+  },
+  "env_production": {
+    "SPINALHUB_PORT": 7777,
+    "SPINALHUB_IP": "127.0.0.1",
+    "INTERVAL": 2000,
+    "CLIENT_ID": "EDIT ME",
+    "CLIENT_SECRET": "EDIT ME",
+    "SPINAL_USER_ID": "EDIT ME",
+    "SPINAL_PASSWORD": "EDIT ME"
+  }
+}
