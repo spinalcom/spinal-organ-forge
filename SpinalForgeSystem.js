@@ -9,7 +9,7 @@ var SpinalForgeMetadata = require('./forge_modules/SpinalForgeMetadata');
 
 
 
-const config = new(require('./SpinalConfig'))();
+// const config = new(require('./SpinalConfig'))();
 
 function SpinalForgeSystem(model) {
   var _self = this;
