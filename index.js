@@ -1,18 +1,12 @@
 // index.js
 
 var spinalCore = require('spinal-core-connectorjs');
-require('spinal-lib-forgefile');
-// var spinalConfig = require('./SpinalConfig');
 var SpinalForgeSystem = require('./SpinalForgeSystem');
-
 var path = require('path');
 var fs = require('fs');
 var vm = require('vm');
 var Q = require('q');
-
-// const config = new spinalConfig();
-
-vm.runInThisContext(fs.readFileSync(path.join(__dirname, 'js-libraries') + "/all.is-sim.js"));
+var ForgeFileItem = require('spinal-lib-forgefile').ForgeFileItem;
 
 const connect_opt = "http://" + process.env.SPINAL_USER_ID +
   ":" + process.env.SPINAL_PASSWORD + "@" + process.env.SPINALHUB_IP +
@@ -27,12 +21,6 @@ var err_connect = function (err) {
     console.log("Error Connect : " + err);
   process.exit(0);
 };
-
-// spinalCore.load(conn, 'ForgeFile', function (forgeFileItem) {
-//   //  spinalCore.load(conn, 'ForgeExport', function(forgeExport) {
-//   new SpinalForgeSystem(forgeFileItem);
-//   //  }, err_connect);
-// }, err_connect);
 
 let wait_for_endround = (file) => {
   let deferred = Q.defer();

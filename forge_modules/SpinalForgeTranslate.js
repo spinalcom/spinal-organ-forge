@@ -15,7 +15,7 @@ function SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
   this.defaultHandleError = function (err) {
     model.state.set("Failed");
     console.error('\x1b[31m Error:', err, '\x1b[0m');
-  }
+  };
 
 
   this.getObjects = function (oAuth) {
@@ -33,7 +33,7 @@ function SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
         });
     };
     return new Promise(promise);
-  }
+  };
 
   this.convertObj = function (oAuth, obj) {
     var job = {
@@ -46,11 +46,11 @@ function SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
           'views': ['3d', '2d']
         }, ]
       }
-    }
+    };
 
     if (path.extname(file_name).toLowerCase() === '.zip') {
       job.input.compressedUrn = true;
-      idx = file_name.lastIndexOf('.zip');
+      var idx = file_name.lastIndexOf('.zip');
       job.input.rootFilename = file_name.slice(0, idx);
     }
 
@@ -67,8 +67,8 @@ function SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
         }, function (err) {
           reject(err);
         });
-    })
-  }
+    });
+  };
 
 
   this.run = function () {
@@ -77,7 +77,7 @@ function SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
         return _self.getObjects(oAuth);
       }, _self.defaultHandleError)
       .then(function (res) {
-        list = res.res;
+        var list = res.res;
         console.log(list);
         for (var i = 0; i < list.length; i++) {
           if (list[i].objectKey == file_name) {
@@ -89,19 +89,19 @@ function SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
         console.log(res);
         model.urn.set(res.res.urn);
         model.state.set("Translating");
-      }, _self.defaultHandleError)
-  }
+      }, _self.defaultHandleError);
+  };
 
 
 
 
   this.translate_in_forge = function () {
     console.log("Starting to Translate the file to svf in forge.");
-    _self.run()
+    _self.run();
     // file_path = path.resolve(__dirname, "../" + file_name);
     // console.log(file_path);
     // console.log(" __dirname  = " + path.join(__dirname + "/../" + file_name));
-  }
+  };
 }
 
 

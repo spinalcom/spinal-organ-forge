@@ -44,7 +44,7 @@ function SpinalForgeAuth(BUCKET_KEY) {
               },
               function (err) {
                 reject(err);
-              })
+              });
           } else {
             reject(err);
           }
@@ -67,9 +67,9 @@ function SpinalForgeAuth(BUCKET_KEY) {
         function (err) {
           reject(err);
         });
-    }
+    };
     return new Promise(promise);
-  }
+  };
 
   this.auth_and_getBucket = function () {
     console.log("*** auth_and_getBucket");
@@ -94,14 +94,14 @@ function SpinalForgeAuth(BUCKET_KEY) {
           function (err) {
             reject(err);
           });
-      })
+      });
       // },
       // function (err) {
       //   reject(err);
       // })
-    }
+    };
     return new Promise(promise);
-  }
+  };
 }
 
 module.exports = SpinalForgeAuth;

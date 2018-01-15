@@ -14,7 +14,7 @@ function SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForge
   this.defaultHandleError = function (err) {
     model.state.set("Failed");
     console.error('\x1b[31m Error:', err, '\x1b[0m');
-  }
+  };
 
 
   // this.getObjects = function(oAuth) {
@@ -78,6 +78,7 @@ function SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForge
 
   this.get_svf_item = function (item) {
     console.log("******* get_svf_item : ", item.name.get());
+    var urn;
     if (item.role && item.role.get() == "graphics" &&
       item.mime && item.mime.get() == "application/autodesk-svf") {
       urn = item.urn;
@@ -90,13 +91,13 @@ function SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForge
         return urn;
     }
     return false;
-  }
+  };
 
   this.run = function () {
     spinalForgeAuth.auth_and_getBucket()
       .then(function (oAuth) {
         console.log(model._children[0]);
-        urn = _self.get_svf_item(model._children[0]) // TEST
+        var urn = _self.get_svf_item(model._children[0]); // TEST
         console.log("result urn = ", urn);
 
         derivativesApi.getDerivativeManifest(model.urn.get(), urn, {}, oAuth, oAuth.getCredentials())
@@ -108,13 +109,13 @@ function SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForge
                 return console.log(err);
               }
               console.log("download done.");
-            })
+            });
 
 
-          }, _self.defaultHandleError)
+          }, _self.defaultHandleError);
 
         // return _self.getObjects(oAuth);
-      }, _self.defaultHandleError)
+      }, _self.defaultHandleError);
     // .then(function(res) {
     //   list = res.res;
     //   console.log(list);
@@ -128,7 +129,7 @@ function SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForge
     //   console.log(res);
     //   model.state.set("Translating");
     // }, _self.defaultHandleError)
-  }
+  };
 
 
 
@@ -142,7 +143,7 @@ function SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForge
     // file_path = path.resolve(__dirname, "../" + file_name);
     // console.log(file_path);
     // console.log(" __dirname  = " + path.join(__dirname + "/../" + file_name));
-  }
+  };
 }
 
 

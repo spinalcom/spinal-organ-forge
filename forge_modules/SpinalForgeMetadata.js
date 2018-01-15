@@ -15,7 +15,7 @@ function SpinalForgeMetadata(model, model_export, BUCKET_KEY, file_name, spinalF
   this.defaultHandleError = function (err) {
     model.state.set("Failed");
     console.error('\x1b[31m Error:', err, '\x1b[0m');
-  }
+  };
 
   this.getMetadata = function (oAuth) {
     console.log("******* getMetadata ");
@@ -24,39 +24,39 @@ function SpinalForgeMetadata(model, model_export, BUCKET_KEY, file_name, spinalF
         .then(function (res) {
           resolve(res);
         }, function (err) {
-          reject(err)
-        })
-    }
+          reject(err);
+        });
+    };
     return new Promise(promise);
-  }
+  };
 
 
   this.getModelviewMetadata = function (oAuth) {
     var done = 0;
+    var modelviewMetadata = function (urn, child_urn, export_child) {
+      derivativesApi.getModelviewMetadata(urn, child_urn, {}, oAuth, oAuth.getCredentials())
+        .then(function (res) {
+          console.log(res);
+          if (res.statusCode === 202) {
+            setTimeout(modelviewMetadata, 3000, urn, child_urn, export_child);
+          } else {
+            done += 1;
+            for (var i = 0; i < res.body.data.objects.length; i++) {
+              var meta = res.body.data.objects[i];
+              export_child.add_child_metadata(meta);
+            }
+            if (done === model_export._children.length)
+              model.state.set("Export completed");
+          }
+        }, _self.defaultHandleError);
+    };
     for (var i = 0; i < model_export._children.length; i++) {
-      export_child = model_export._children[i]
+      var export_child = model_export._children[i];
       if (export_child._children.length == 0) {
-        modelviewMetadata = function (urn, child_urn) {
-          derivativesApi.getModelviewMetadata(urn, child_urn, {}, oAuth, oAuth.getCredentials())
-            .then(function (res) {
-              console.log(res);
-              if (res.statusCode === 202) {
-                setTimeout(modelviewMetadata, 3000, urn, child_urn);
-              } else {
-                done += 1;
-                for (var i = 0; i < res.body.data.objects.length; i++) {
-                  meta = res.body.data.objects[i];
-                  export_child.add_child_metadata(meta);
-                }
-                if (done === model_export._children.length)
-                  model.state.set("Export completed");
-              }
-            }, _self.defaultHandleError)
-        }
-        modelviewMetadata(model.urn.get(), export_child.guid.get());
+        modelviewMetadata(model.urn.get(), export_child.guid.get(), export_child);
       }
     }
-  }
+  };
 
 
   this.run = function () {
@@ -67,8 +67,8 @@ function SpinalForgeMetadata(model, model_export, BUCKET_KEY, file_name, spinalF
             console.log(res_metadata);
             if (model_export._children.length == 0) {
               for (var i = 0; i < res_metadata.body.data.metadata.length; i++) {
-                obj = res_metadata.body.data.metadata[i];
-                item = new ForgeModelItem(obj.name);
+                var obj = res_metadata.body.data.metadata[i];
+                var item = new ForgeModelItem(obj.name);
                 item.add_attr({
                   guid: obj.guid
                 });
@@ -76,23 +76,15 @@ function SpinalForgeMetadata(model, model_export, BUCKET_KEY, file_name, spinalF
               }
             }
             _self.getModelviewMetadata(oAuth);
-            // for (var i = 0; i < model_export._children.length; i++) {
-            //   export_child = model_export._children[i]
-            //
-            //
-            //
-            // }
-            //
-
-          }, _self.defaultHandleError)
-      }, _self.defaultHandleError)
-  }
+          }, _self.defaultHandleError);
+      }, _self.defaultHandleError);
+  };
 
 
   this.metadata = function () {
     console.log("Exporting Metadata.");
-    _self.run()
-  }
+    _self.run();
+  };
 }
 
 
