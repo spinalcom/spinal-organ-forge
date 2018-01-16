@@ -19,7 +19,7 @@ function SpinalForgeSystem(model) {
   if (model.bucket_key && model.bucket_key.get() != "") {
     BUCKET_KEY = model.bucket_key.get();
   } else {
-    BUCKET_KEY = 'spinal_' + encodeURI(file_name) + '_' + Date.now();
+    BUCKET_KEY = 'spinal_' + encodeURIComponent(file_name) + '_' + Date.now();
     model.bucket_key.set(BUCKET_KEY);
   }
   var spinalForgeFile = new SpinalForgeFile(model, file_name);
