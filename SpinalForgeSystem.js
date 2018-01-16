@@ -14,7 +14,7 @@ var SpinalForgeMetadata = require('./forge_modules/SpinalForgeMetadata');
 function SpinalForgeSystem(model) {
   var _self = this;
   SpinalForgeSystem.super(this, model);
-  var file_name = model.name.get().replace(/ *\t*(%20)*\(([0-9]*)\)(%20)* *\t*./, ".");
+  var file_name = model.name.get().replace(/ *\t*(%20)*\(([0-9]*)\)(%20)* *\t*/, "");
 
   var BUCKET_KEY;
   if (model.bucket_key && model.bucket_key.get() != "") {
