@@ -44,7 +44,11 @@ let callback_success = (file) => {
         if (file._info.rvt) {
           file._info.rvt.load((tmp) => {
             if (!tmp) return;
-            forgeFileItem.name.set(file.name.get().toLowerCase() + '.rvt');
+            let ext = "rvt"; // default
+            if (file._info.ext && file._info.ext.get()) {
+              ext = file._info.ext.get();
+            }
+            forgeFileItem.name.set(file.name.get().toLowerCase() + '.' + ext);
             file._ptr.set(forgeFileItem);
             forgeFileItem.mod_attr("filepath", tmp);
             forgeFileItem.state.set("Uploading completed");
