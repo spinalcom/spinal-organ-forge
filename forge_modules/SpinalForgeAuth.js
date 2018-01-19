@@ -1,5 +1,28 @@
+/**
+ * Copyright 2015 SpinalCom - www.spinalcom.com
+ * 
+ * This file is part of SpinalCore.
+ * 
+ * Please read all of the following terms and conditions
+ * of the Free Software license Agreement ("Agreement")
+ * carefully.
+ * 
+ * This Agreement is a legally binding contract between
+ * the Licensee (as defined below) and SpinalCom that
+ * sets forth the terms and conditions that govern your
+ * use of the Program. By installing and/or using the
+ * Program, you agree to abide by all the terms and
+ * conditions stated or referenced herein.
+ * 
+ * If you do not agree to abide by these terms and
+ * conditions, do not demonstrate your acceptance and do
+ * not install or use the Program.
+ * You should have received a copy of the license along
+ * with this file. If not, see
+ * <http://resources.spinalcom.com/licenses.pdf>.
+ */
+
 var fs = require('fs');
-// const config = new(require('../SpinalConfig'));
 var ForgeSDK = require('forge-apis');
 var bucketsApi = new ForgeSDK.BucketsApi();
 var path = require('path');
@@ -14,8 +37,6 @@ function SpinalForgeAuth(BUCKET_KEY) {
 
     console.log('oauth 2 legged');
     console.log(this.oAuth2TwoLegged);
-
-    console.log('oauth 2 legged 2');
     console.log(this.oAuth2TwoLegged.getCredentials());
 
     return bucketsApi.getBucketDetails(bucketKey, this.oAuth2TwoLegged, this.oAuth2TwoLegged.getCredentials());
@@ -74,18 +95,6 @@ function SpinalForgeAuth(BUCKET_KEY) {
   this.auth_and_getBucket = function () {
     console.log("*** auth_and_getBucket");
     var promise = function (resolve, reject) {
-      // if (_self.loggedIn == true) {
-      //   resolve(_self.oAuth2TwoLegged);
-      //   return;
-      // }
-      // _self.oAuth2TwoLegged = new ForgeSDK.AuthClientTwoLegged(config.forge.client_id,
-      //   config.forge.client_secret, [
-      //     'data:read', 'data:write', 'data:create', 'data:search',
-      //     'bucket:create', 'bucket:read', 'bucket:update'
-      //   ], true);
-
-      // _self.oAuth2TwoLegged.authenticate().then(function (credentials) {
-      //     console.log("**** Got Credentials", credentials);
       _self.auth().then(function () {
         return _self.createBucketIfNotExist(BUCKET_KEY).then(function (createBucketRes) {
             _self.loggedIn = true;
@@ -95,10 +104,6 @@ function SpinalForgeAuth(BUCKET_KEY) {
             reject(err);
           });
       });
-      // },
-      // function (err) {
-      //   reject(err);
-      // })
     };
     return new Promise(promise);
   };

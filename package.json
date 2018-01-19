@@ -7,7 +7,6 @@
     "base64-url": "^1.3.3",
     "forge-apis": "^0.3.0",
     "q": "^1.5.1",
-    "spinal-browser-drive": "git+https://github.com/spinalcom/spinal-browser-drive.git",
     "spinal-lib-forgefile": "git+https://github.com/spinalcom/spinal-lib-forgefile.git",
     "spinal-env-drive-plugin-forge": "git+https://github.com/spinalcom/spinal-env-drive-plugin-forge.git"
   }
