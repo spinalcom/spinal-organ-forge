@@ -12,6 +12,7 @@
     "spinal-env-drive-plugin-forge": "git+https://github.com/spinalcom/spinal-env-drive-plugin-forge.git"
   },
   "scripts": {
-    "postinstall": "echo postinstall spinal-organ-forge"
+    "postinstall": "npm run spinal-register",
+    "spinal-register": "spinal-register"
   }
 }
