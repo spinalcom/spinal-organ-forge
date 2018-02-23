@@ -53,11 +53,11 @@ function SpinalForgeWaitTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth)
   };
 
   this.save_data = function (derivatives) {
-    for (var i = 0; i < derivatives.length; i++) {
-      var derivative = derivatives[i];
+    // for (var i = 0; i < derivatives.length; i++) {
+    //   var derivative = derivatives[i];
 
-      model.add_child(new ForgeFileDerivativesItem(derivative));
-    }
+    //   // model.add_child(new ForgeFileDerivativesItem(derivative));
+    // }
   };
 
   this.run = function () {
