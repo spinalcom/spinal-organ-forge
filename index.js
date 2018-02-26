@@ -29,6 +29,18 @@ var fs = require('fs');
 var vm = require('vm');
 var Q = require('q');
 var ForgeFileItem = require('spinal-lib-forgefile').ForgeFileItem;
+var ForgeFileDerivativesItem = require('spinal-lib-forgefile').ForgeFileDerivativesItem;
+
+if (!process.env.CLIENT_ID) {
+  console.log("default config");
+  process.env.CLIENT_ID = "BEPDm9zfKqyAuvahZxtHXSlj6S8p2RBQ";
+  process.env.CLIENT_SECRET = "KonkNdBZmvGCT4SV";
+  process.env.SPINAL_USER_ID = "168";
+  process.env.SPINAL_PASSWORD = "JHGgcz45JKilmzknzelf65ddDadggftIO98P";
+  process.env.SPINALHUB_IP = "localhost";
+  process.env.SPINALHUB_PORT = 7777;
+}
+spinalCore.register_models([ForgeFileItem, ForgeFileDerivativesItem]);
 
 const connect_opt = "http://" + process.env.SPINAL_USER_ID +
   ":" + process.env.SPINAL_PASSWORD + "@" + process.env.SPINALHUB_IP +

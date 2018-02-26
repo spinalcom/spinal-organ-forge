@@ -28,12 +28,8 @@ var SpinalForgeFile = require('./forge_modules/SpinalForgeFile');
 var SpinalForgeUpload = require('./forge_modules/SpinalForgeUpload');
 var SpinalForgeTranslate = require('./forge_modules/SpinalForgeTranslate');
 var SpinalForgeWaitTranslate = require('./forge_modules/SpinalForgeWaitTranslate');
-// var SpinalForgeDownloadDerivative = require('./forge_modules/SpinalForgeDownloadDerivative');
+var SpinalForgeDownloadDerivative = require('./forge_modules/SpinalForgeDownloadDerivative');
 var SpinalForgeMetadata = require('./forge_modules/SpinalForgeMetadata');
-
-
-
-// const config = new(require('./SpinalConfig'))();
 
 function SpinalForgeSystem(model) {
   var _self = this;
@@ -53,9 +49,8 @@ function SpinalForgeSystem(model) {
   var spinalForgeUpload = new SpinalForgeUpload(model, BUCKET_KEY, file_name, spinalForgeAuth);
   var spinalForgeTranslate = new SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth);
   var spinalForgeWaitTranslate = new SpinalForgeWaitTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth);
-  // var spinalForgeDownloadDerivative = new SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForgeAuth);
+  var spinalForgeDownloadDerivative = new SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForgeAuth);
   //  var spinalForgeMetadata = new SpinalForgeMetadata(model, model_export, BUCKET_KEY, file_name, spinalForgeAuth);
-
 
   this.placeholer = function () {
     console.log("placeholer");
@@ -79,12 +74,11 @@ function SpinalForgeSystem(model) {
       state: "Translating",
       func: spinalForgeWaitTranslate.wait_translate
     },
-    /*    {
-          state: "Translating completed",
-          func: spinalForgeMetadata.metadata
-          // func: spinalForgeDownloadDerivative.get_forge_models
-        },
-    */
+    {
+      state: "Translating completed",
+      // func: spinalForgeMetadata.metadata
+      func: spinalForgeDownloadDerivative.get_forge_models
+    },
     {
       state: "Exporting",
       func: _self.placeholer

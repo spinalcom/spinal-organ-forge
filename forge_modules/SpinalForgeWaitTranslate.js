@@ -29,7 +29,6 @@ var ForgeSDK = require('forge-apis');
 var objectsApi = new ForgeSDK.ObjectsApi();
 var derivativesApi = new ForgeSDK.DerivativesApi();
 var base64url = require('base64-url');
-var ForgeFileDerivativesItem = require('spinal-lib-forgefile').ForgeFileDerivativesItem;
 
 function SpinalForgeWaitTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
   var _self = this;
@@ -73,7 +72,7 @@ function SpinalForgeWaitTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth)
                 .then(call_success, _self.defaultHandleError);
             }, 5000);
           } else {
-            console.log("Translating completed ! ");
+            console.log("Translating completed !");
             _self.save_data(callback_res.derivatives);
             model.state.set("Translating completed");
           }

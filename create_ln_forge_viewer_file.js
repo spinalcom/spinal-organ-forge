@@ -40,7 +40,7 @@ mkdirp(viewerForgeFiles, function (err) {
   if (err) console.error(err);
   else {
     if (!fs.existsSync(ln)) {
-      fs.symlinkSync(path.relative(browserPath, viewerForgeFiles), ln);
+      fs.symlinkSync(path.relative(module_path, viewerForgeFiles), ln);
     }
   }
 });
