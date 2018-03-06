@@ -192,11 +192,8 @@ function SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForge
         // console.log(path.resolve(__dirname, fi.localPath + fi.fileName));
         // console.log("\n\nTEST END\n\n");
         // console.log('http://localhost:8889/html/' + path.normalize(fi.localPath + fi.fileName));
-        let hostname = 'http://' + process.env.SPINALHUB_IP;
-        if (process.env.SPINALHUB_PORT)
-          hostname += ":" + process.env.SPINALHUB_PORT;
         _self._viewables.push({
-          path: hostname + '/html/' + path.normalize(fi.localPath + fi.fileName),
+          path: '/html/' + path.normalize(fi.localPath + fi.fileName),
           name: fi.name
         });
       }
