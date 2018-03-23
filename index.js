@@ -72,7 +72,9 @@ let wait_for_endround = (file) => {
 
 let callback_success = (file) => {
   wait_for_endround(file).then(() => {
-    if (file && file._info && file._info.model_type && file._info.model_type.get() === 'BIM Project') {
+    if (file && file._info && file._info.model_type &&
+      (file._info.model_type.get() === 'BIM Project' ||
+        file._info.model_type.get() === 'Digital twin')) {
       if (file._ptr && file._ptr.data.value === 0) {
         let forgeFileItem = new ForgeFileItem();
         if (file._info.rvt) {
