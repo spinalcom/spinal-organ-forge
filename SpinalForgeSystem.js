@@ -1,19 +1,19 @@
 /**
  * Copyright 2015 SpinalCom - www.spinalcom.com
- * 
+ *
  * This file is part of SpinalCore.
- * 
+ *
  * Please read all of the following terms and conditions
  * of the Free Software license Agreement ("Agreement")
  * carefully.
- * 
+ *
  * This Agreement is a legally binding contract between
  * the Licensee (as defined below) and SpinalCom that
  * sets forth the terms and conditions that govern your
  * use of the Program. By installing and/or using the
  * Program, you agree to abide by all the terms and
  * conditions stated or referenced herein.
- * 
+ *
  * If you do not agree to abide by these terms and
  * conditions, do not demonstrate your acceptance and do
  * not install or use the Program.
@@ -22,43 +22,69 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-var ForgeSDK = require('forge-apis');
-var SpinalForgeAuth = require('./forge_modules/SpinalForgeAuth');
-var SpinalForgeFile = require('./forge_modules/SpinalForgeFile');
-var SpinalForgeUpload = require('./forge_modules/SpinalForgeUpload');
-var SpinalForgeTranslate = require('./forge_modules/SpinalForgeTranslate');
-var SpinalForgeWaitTranslate = require('./forge_modules/SpinalForgeWaitTranslate');
-var SpinalForgeDownloadDerivative = require('./forge_modules/SpinalForgeDownloadDerivative');
-var SpinalForgeMetadata = require('./forge_modules/SpinalForgeMetadata');
+var SpinalForgeAuth = require("./forge_modules/SpinalForgeAuth");
+var SpinalForgeFile = require("./forge_modules/SpinalForgeFile");
+var SpinalForgeUpload = require("./forge_modules/SpinalForgeUpload");
+var SpinalForgeTranslate = require("./forge_modules/SpinalForgeTranslate");
+var SpinalForgeWaitTranslate = require("./forge_modules/SpinalForgeWaitTranslate");
+var SpinalForgeDownloadDerivative = require("./forge_modules/SpinalForgeDownloadDerivative");
+var spinalCore = require("spinal-core-connectorjs");
 
 function SpinalForgeSystem(model) {
   var _self = this;
   SpinalForgeSystem.super(this, model);
-  var file_name = model.name.get().replace(/ *\t*(%20)*\(([0-9]*)\)(%20)* *\t*/, "");
+  var file_name = model.name
+    .get()
+    .replace(/ *\t*(%20)*\(([0-9]*)\)(%20)* *\t*/, "");
 
   var BUCKET_KEY;
   if (model.bucket_key && model.bucket_key.get() != "") {
     BUCKET_KEY = model.bucket_key.get();
   } else {
-    BUCKET_KEY = 'spinal_' + encodeURIComponent(file_name) + '_' + Date.now();
-    BUCKET_KEY = encodeURIComponent(Buffer.from(BUCKET_KEY).toString('base64').replace(/=*/g, "")).toLowerCase().replace(/%*/g, "");
+    BUCKET_KEY = "spinal_" + encodeURIComponent(file_name) + "_" + Date.now();
+    BUCKET_KEY = encodeURIComponent(
+      Buffer.from(BUCKET_KEY)
+        .toString("base64")
+        .replace(/=*/g, "")
+    )
+      .toLowerCase()
+      .replace(/%*/g, "");
     model.bucket_key.set(BUCKET_KEY);
   }
   var spinalForgeFile = new SpinalForgeFile(model, file_name);
   var spinalForgeAuth = new SpinalForgeAuth(BUCKET_KEY);
-  var spinalForgeUpload = new SpinalForgeUpload(model, BUCKET_KEY, file_name, spinalForgeAuth);
-  var spinalForgeTranslate = new SpinalForgeTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth);
-  var spinalForgeWaitTranslate = new SpinalForgeWaitTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth);
-  var spinalForgeDownloadDerivative = new SpinalForgeDownloadDerivative(model, BUCKET_KEY, file_name, spinalForgeAuth);
-  //  var spinalForgeMetadata = new SpinalForgeMetadata(model, model_export, BUCKET_KEY, file_name, spinalForgeAuth);
+  var spinalForgeUpload = new SpinalForgeUpload(
+    model,
+    BUCKET_KEY,
+    file_name,
+    spinalForgeAuth
+  );
+  var spinalForgeTranslate = new SpinalForgeTranslate(
+    model,
+    BUCKET_KEY,
+    file_name,
+    spinalForgeAuth
+  );
+  var spinalForgeWaitTranslate = new SpinalForgeWaitTranslate(
+    model,
+    BUCKET_KEY,
+    file_name,
+    spinalForgeAuth
+  );
+  var spinalForgeDownloadDerivative = new SpinalForgeDownloadDerivative(
+    model,
+    BUCKET_KEY,
+    file_name,
+    spinalForgeAuth
+  );
 
-  this.placeholer = function () {
+  this.placeholer = function() {
     console.log("placeholer");
   };
-  // model.state.set("Uploading to forge");
 
   _self.lastState = "";
-  _self._func = [{
+  _self._func = [
+    {
       state: "Uploading completed",
       func: spinalForgeFile.download_file
     },
@@ -76,7 +102,6 @@ function SpinalForgeSystem(model) {
     },
     {
       state: "Translating completed",
-      // func: spinalForgeMetadata.metadata
       func: spinalForgeDownloadDerivative.get_forge_models
     },
     {
@@ -86,27 +111,25 @@ function SpinalForgeSystem(model) {
     {
       state: "Export completed",
       func: _self.placeholer
-    },
+    }
   ];
 
-  this.defaultHandleError = function (err) {
+  this.defaultHandleError = function(err) {
     model.state.set("Failed");
-    console.error('\x1b[31m Error:', err, '\x1b[0m');
+    console.error("\x1b[31m Error:", err, "\x1b[0m");
   };
 
-  this.ask_token = function () {
+  this.ask_token = function() {
     if (model.ask_token && model.ask_token.get()) {
-      spinalForgeAuth.auth()
-        .then(function (oAuth) {
-          model.oauth.set(oAuth.getCredentials().access_token);
-          model.ask_token.set(false);
-        }, _self.defaultHandleError);
+      spinalForgeAuth.auth().then(function(oAuth) {
+        model.oauth.set(oAuth.getCredentials().access_token);
+        model.ask_token.set(false);
+      }, _self.defaultHandleError);
     }
   };
-  if (model.ask_token)
-    model.ask_token.bind(_self.ask_token);
+  if (model.ask_token) model.ask_token.bind(_self.ask_token);
 
-  this.onchange = function () {
+  this.onchange = function() {
     if (model.state || model.state.get() === _self.lastState) {
       console.log("State: " + model.state.get());
       for (var i = 0; i < _self._func.length; i++) {
@@ -119,10 +142,8 @@ function SpinalForgeSystem(model) {
       }
     }
   };
-
 }
 
-
-spinalCore.extend(SpinalForgeSystem, Process);
+spinalCore.extend(SpinalForgeSystem, window.Process);
 
 module.exports = SpinalForgeSystem;

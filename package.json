@@ -1,6 +1,6 @@
 {
   "name": "spinal-organ-forge",
-  "version": "v1.0.2",
+  "version": "v1.0.3",
   "description": "",
   "main": "index.js",
   "dependencies": {
@@ -9,13 +9,18 @@
     "mkdirp": "^0.5.1",
     "node-zip": "^1.1.1",
     "q": "^1.5.1",
-    "spinal-core-hub": "git+https://github.com/spinalcom/spinal-core-hub.git#3.0.0",
-    "spinal-env-drive-plugin-forge": "git+https://github.com/spinalcom/spinal-env-drive-plugin-forge.git",
-    "spinal-lib-forgefile": "git+https://github.com/spinalcom/spinal-lib-forgefile.git"
+    "spinal-core-system":
+      "git+https://github.com/spinalcom/spinal-core-system.git",
+    "spinal-core-connectorjs":
+      "git+https://github.com/spinalcom/spinal-core-connectorjs.git",
+    "spinal-env-drive-plugin-forge":
+      "git+https://github.com/spinalcom/spinal-env-drive-plugin-forge.git",
+    "spinal-lib-forgefile":
+      "git+https://github.com/spinalcom/spinal-lib-forgefile.git"
   },
   "scripts": {
     "postinstall": "npm run spinal-register && npm run create-ln",
-    "spinal-register": "spinal-register",
+    "spinal-register": "spinal-register --node-organ",
     "create-ln": "node create_ln_forge_viewer_file.js"
   }
 }
