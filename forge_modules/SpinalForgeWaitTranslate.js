@@ -1,19 +1,19 @@
 /**
  * Copyright 2015 SpinalCom - www.spinalcom.com
- * 
+ *
  * This file is part of SpinalCore.
- * 
+ *
  * Please read all of the following terms and conditions
  * of the Free Software license Agreement ("Agreement")
  * carefully.
- * 
+ *
  * This Agreement is a legally binding contract between
  * the Licensee (as defined below) and SpinalCom that
  * sets forth the terms and conditions that govern your
  * use of the Program. By installing and/or using the
  * Program, you agree to abide by all the terms and
  * conditions stated or referenced herein.
- * 
+ *
  * If you do not agree to abide by these terms and
  * conditions, do not demonstrate your acceptance and do
  * not install or use the Program.
@@ -22,68 +22,71 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-var fs = require('fs');
-var path = require('path');
-
-var ForgeSDK = require('forge-apis');
-var objectsApi = new ForgeSDK.ObjectsApi();
+var ForgeSDK = require("forge-apis");
 var derivativesApi = new ForgeSDK.DerivativesApi();
-var base64url = require('base64-url');
-var ForgeFileDerivativesItem = require('spinal-lib-forgefile').ForgeFileDerivativesItem;
 
-function SpinalForgeWaitTranslate(model, BUCKET_KEY, file_name, spinalForgeAuth) {
+function SpinalForgeWaitTranslate(
+  model,
+  BUCKET_KEY,
+  file_name,
+  spinalForgeAuth
+) {
   var _self = this;
 
-  this.defaultHandleError = function (err) {
+  this.defaultHandleError = function(err) {
     model.state.set("Failed");
-    console.error('\x1b[31m Error:', err, '\x1b[0m');
+    console.error("\x1b[31m Error:", err, "\x1b[0m");
   };
 
-  this.getManifest = function (oAuth, urn) {
+  this.getManifest = function(oAuth, urn) {
     console.log("**** getManifest");
 
-    return new Promise(function (resolve, reject) {
-      derivativesApi.getManifest(urn, null, oAuth, oAuth.getCredentials())
-        .then(function (res) {
+    return new Promise(function(resolve, reject) {
+      derivativesApi.getManifest(urn, null, oAuth, oAuth.getCredentials()).then(
+        function(res) {
           resolve(res.body);
-        }, function (err) {
+        },
+        function(err) {
           reject(err);
-        });
+        }
+      );
     });
   };
 
-  this.save_data = function (derivatives) {
-    for (var i = 0; i < derivatives.length; i++) {
-      var derivative = derivatives[i];
-
-      model.add_child(new ForgeFileDerivativesItem(derivative));
-    }
+  this.save_data = function() {
+    // for (var i = 0; i < derivatives.length; i++) {
+    //   var derivative = derivatives[i];
+    //   // model.add_child(new ForgeFileDerivativesItem(derivative));
+    // }
   };
 
-  this.run = function () {
-    spinalForgeAuth.auth_and_getBucket()
-      .then(function (oAuth) {
-
-        var urn = model.urn.get();
-        var call_success = function (callback_res) {
-          console.log(callback_res);
-          if (callback_res.status === "pending" || callback_res.status === "inprogress") {
-            setTimeout(function () {
-              _self.getManifest(oAuth, urn)
-                .then(call_success, _self.defaultHandleError);
-            }, 5000);
-          } else {
-            console.log("Translating completed ! ");
-            _self.save_data(callback_res.derivatives);
-            model.state.set("Translating completed");
-          }
-        };
-        _self.getManifest(oAuth, urn)
-          .then(call_success, _self.defaultHandleError);
-      }, _self.defaultHandleError);
+  this.run = function() {
+    spinalForgeAuth.auth_and_getBucket().then(function(oAuth) {
+      var urn = model.urn.get();
+      var call_success = function(callback_res) {
+        console.log(callback_res);
+        if (
+          callback_res.status === "pending" ||
+          callback_res.status === "inprogress"
+        ) {
+          setTimeout(function() {
+            _self
+              .getManifest(oAuth, urn)
+              .then(call_success, _self.defaultHandleError);
+          }, 5000);
+        } else {
+          console.log("Translating completed !");
+          _self.save_data(callback_res.derivatives);
+          model.state.set("Translating completed");
+        }
+      };
+      _self
+        .getManifest(oAuth, urn)
+        .then(call_success, _self.defaultHandleError);
+    }, _self.defaultHandleError);
   };
 
-  this.wait_translate = function () {
+  this.wait_translate = function() {
     console.log("Waiting to Translate the file to svf in forge.");
     _self.run();
   };
