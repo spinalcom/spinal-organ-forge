@@ -143,7 +143,8 @@ function SpinalForgeSystem(model) {
     }
   };
 }
+let organType = typeof window === "undefined" ? global : window;
 
-spinalCore.extend(SpinalForgeSystem, window.Process);
+spinalCore.extend(SpinalForgeSystem, organType.Process);
 
 module.exports = SpinalForgeSystem;

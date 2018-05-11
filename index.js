@@ -56,11 +56,12 @@ var err_connect = function(err) {
   else console.log("Error Connect : " + err);
   process.exit(0);
 };
+let organType = typeof window === "undefined" ? global : window;
 
 let wait_for_endround = file => {
   let deferred = Q.defer();
   let wait_for_endround_loop = (_file, defer) => {
-    if (window.FileSystem._sig_server === false) {
+    if (organType.FileSystem._sig_server === false) {
       setTimeout(() => {
         defer.resolve(wait_for_endround_loop(_file, defer));
       }, 100);
