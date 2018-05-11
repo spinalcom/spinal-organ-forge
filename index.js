@@ -93,9 +93,11 @@ let callback_success = file => {
             file._ptr.set(forgeFileItem);
             forgeFileItem.mod_attr("filepath", tmp);
             forgeFileItem.state.set("Uploading completed");
-            file._info.add_attr({
-              state: forgeFileItem.state
-            });
+            setTimeout(function() {
+              file._info.add_attr({
+                state: forgeFileItem.state
+              });
+            }, 1000);
             new SpinalForgeSystem(forgeFileItem, file);
           });
         }
