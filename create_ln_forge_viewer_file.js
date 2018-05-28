@@ -27,7 +27,7 @@
 var fs = require("fs");
 var path = require("path");
 var mkdirp = require("mkdirp");
-var module_path = path.resolve(".");
+var module_path = path.resolve(__dirname);
 let test_is_in_node_modules = /node_modules/g.exec(module_path);
 if (test_is_in_node_modules === null) {
   process.exit(0);
@@ -37,18 +37,15 @@ var ln = path.resolve(module_path + "/viewerForgeFiles");
 var browserPath = path.resolve(rootPath + "/.browser_organs");
 var viewerForgeFiles = path.resolve(browserPath + "/viewerForgeFiles");
 var nerveCenter = path.resolve(rootPath + "/nerve-center");
-var nerveCenterViewerForgeFiles = path.resolve(
-  nerveCenter + "/viewerForgeFiles"
-);
+var memory_path = path.resolve(nerveCenter + "/memory");
 
-mkdirp(nerveCenterViewerForgeFiles, function(err) {
+var viewerForgeFilesPath = path.resolve(memory_path + "/viewerForgeFiles");
+
+mkdirp(viewerForgeFilesPath, function(err) {
   if (err) console.error(err);
   else {
     if (!fs.existsSync(ln)) {
-      fs.symlinkSync(
-        path.relative(module_path, nerveCenterViewerForgeFiles),
-        ln
-      );
+      fs.symlinkSync(path.relative(module_path, viewerForgeFilesPath), ln);
     }
   }
 });
@@ -57,7 +54,7 @@ mkdirp(browserPath, function(err) {
   else {
     if (!fs.existsSync(viewerForgeFiles)) {
       fs.symlinkSync(
-        path.relative(browserPath, nerveCenterViewerForgeFiles),
+        path.relative(browserPath, viewerForgeFilesPath),
         viewerForgeFiles
       );
     }
