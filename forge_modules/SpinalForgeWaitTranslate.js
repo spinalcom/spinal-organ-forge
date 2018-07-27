@@ -74,17 +74,24 @@ function SpinalForgeWaitTranslate(
               .getManifest(oAuth, urn)
               .then(call_success, _self.defaultHandleError);
           }, 5000);
+        } else if (callback_res.status == "failed") {
+          console.log("Error from autodesk forge!");
+          for (var i = 0; i < callback_res.derivatives.length; i++) {
+            console.log(callback_res.derivatives[i].messages);
+          }
+          _self.defaultHandleError("Error from autodesk forge");
         } else {
           console.log("Translating completed !");
           _self.save_data(callback_res.derivatives);
           model.state.set("Translating completed");
         }
       };
-      _self
+      return _self
         .getManifest(oAuth, urn)
         .then(call_success, _self.defaultHandleError);
     }, _self.defaultHandleError);
   };
+
 
   this.wait_translate = function() {
     console.log("Waiting to Translate the file to svf in forge.");
