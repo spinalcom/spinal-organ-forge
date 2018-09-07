@@ -73,8 +73,9 @@ function SpinalForgeUpload(model, BUCKET_KEY, file_name, spinalForgeAuth) {
     spinalForgeAuth.auth_and_getBucket().then(function(oAuth) {
       _self.uploadFile(oAuth).then(function() {
         var file_path = path.resolve(__dirname, "../" + file_name);
-        fs.unlink(file_path);
-        model.state.set("Upload to forge completed");
+          fs.unlink(file_path, ()=> {
+              model.state.set("Upload to forge completed");
+	  });
       }, _self.defaultHandleError);
     }, _self.defaultHandleError);
   };

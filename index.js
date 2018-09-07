@@ -30,11 +30,11 @@ var ForgeFileDerivativesItem = require("spinal-lib-forgefile")
   .ForgeFileDerivativesItem;
 
 if (!process.env.CLIENT_ID) {
-  console.log("default config");
-  process.env.SPINAL_USER_ID = "168";
-  process.env.SPINAL_PASSWORD = "JHGgcz45JKilmzknzelf65ddDadggftIO98P";
-  process.env.SPINALHUB_IP = "localhost";
-  process.env.SPINALHUB_PORT = 7777;
+    console.log("default config");
+    process.env.SPINAL_USER_ID = "168";
+    process.env.SPINAL_PASSWORD = "JHGgcz45JKilmzknzelf65ddDadggftIO98P";
+    process.env.SPINALHUB_IP = "localhost";
+    process.env.SPINALHUB_PORT = 7777;
 }
 spinalCore.register_models([ForgeFileItem, ForgeFileDerivativesItem]);
 
@@ -72,45 +72,54 @@ let wait_for_endround = file => {
 };
 
 let callback_success = file => {
-  wait_for_endround(file).then(() => {
-    if (
-      file &&
-      file._info &&
-      file._info.model_type &&
-      (file._info.model_type.get() === "BIM Project" ||
-        file._info.model_type.get() === "Digital twin")
-    ) {
-      if (file._ptr && file._ptr.data.value === 0) {
-        let forgeFileItem = new ForgeFileItem();
-        if (file._info.rvt) {
-          file._info.rvt.load(tmp => {
-            if (!tmp) return;
-            let ext = "rvt"; // default
-            if (file._info.ext && file._info.ext.get()) {
-              ext = file._info.ext.get();
-            }
-            forgeFileItem.name.set(file.name.get().toLowerCase() + "." + ext);
-            file._ptr.set(forgeFileItem);
-            forgeFileItem.mod_attr("filepath", tmp);
-            forgeFileItem.state.set("Uploading completed");
-            setTimeout(function() {
-              file._info.add_attr({
-                state: forgeFileItem.state
-              });
-            }, 1000);
-            new SpinalForgeSystem(forgeFileItem, file);
-          });
-        }
-      } else {
-        file.load(forgeFileItem => {
-          if (forgeFileItem) {
-            new SpinalForgeSystem(forgeFileItem, file);
-          } else {
-            console.error("error in forgeItem");
-          }
-        });
-      }
-    }
-  });
+    wait_for_endround(file)
+	.then(
+	    () => {
+		if (
+		    file &&
+			file._info &&
+			file._info.model_type &&
+			(file._info.model_type.get() === "BIM Project" ||
+			 file._info.model_type.get() === "Digital twin")
+		) {
+		    if (file._ptr && file._ptr.data.value === 0) {
+			let forgeFileItem = new ForgeFileItem();
+			if (file._info.rvt) {
+			    file._info.rvt.load(tmp => {
+				if (!tmp) return;
+				let ext = "rvt"; // default
+				if (file._info.ext && file._info.ext.get()) {
+				    ext = file._info.ext.get();
+				}
+				forgeFileItem.name.set(file.name.get().toLowerCase() + "." + ext);
+				file._ptr.set(forgeFileItem);
+				forgeFileItem.mod_attr("filepath", tmp);
+				forgeFileItem.state.set("Uploading completed");
+				setTimeout(function() {
+				    file._info.add_attr({
+					state: forgeFileItem.state
+				    });
+				}, 1000);
+				new SpinalForgeSystem(forgeFileItem, file);
+			    });
+			}
+		    } else {
+			file.load(forgeFileItem => {
+			    if (forgeFileItem) {
+				new SpinalForgeSystem(forgeFileItem, file);
+			    } else {
+				console.error("error in forgeItem");
+			    }
+			});
+		    }
+		}
+	    },
+	    (e)=> {
+		console.error(e)
+	    }
+	)
+
+
+    ;
 };
 spinalCore.load_type(conn, "File", callback_success, err_connect);
