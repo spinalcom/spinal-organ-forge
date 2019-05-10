@@ -8,3 +8,5 @@ node_modules
 launch.config.js
 nerve-center
 viewerForgeFiles
+.vscode
+bkp

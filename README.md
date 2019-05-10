@@ -2,14 +2,6 @@
 
 ## Dependencies
 
-### Install [Docker](https://www.docker.com/)
-
-https://www.docker.com/get-docker
-
-### Pull SpinalHub:v3.0.0 doker image
-```
-$ docker pull spinalhub:v3.0.0
-```
 ### Install [pm2](https://github.com/Unitech/pm2) globally
 ```
 $ npm install pm2 -g
@@ -26,6 +18,10 @@ $ npm init
 
 ### Install the package locally
 
+```
+npm install git+https://github.com/spinalcom/spinal-organ-forge.git
+```
+
 This will install the packages
 - [spinal-organ-forge](https://github.com/spinalcom/spinal-organ-forge)
   - [spinal-browser-drive](https://github.com/spinalcom/spinal-browser-drive)
@@ -36,9 +32,6 @@ This will install the packages
   - [spinal-env-drive-plugin-forge](https://github.com/spinalcom/spinal-env-drive-plugin-forge)
 
 
-```
-npm install git+https://github.com/spinalcom/spinal-organ-forge.git
-```
 
 ## Configuration
 
