@@ -36,6 +36,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
     this._outPath = './';
     this._viewables = []; // { path: '', name: '' }
     this._errors = []; // ''
+    this._thumbnail = [];
     function getManifest(oAuth, urn) {
         console.log('**** getManifest');
         if (urn === undefined || urn === null) {
@@ -137,6 +138,10 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
             };
             if (fi.mime && fi.mime === 'thumbnail') {
                 getThumbnail(fi.urn, fi.guid, 400, fi.localPath + fi.fileName, downloadComplete);
+                _self._thumbnail.push({
+                    path: `/html/${path.normalize(fi.localPath + fi.fileName)}`,
+                    localPath: fi.localPath,
+                });
             }
             else {
                 getItem(fi.basePath + fi.fileName, fi.localPath + fi.fileName, modelUrn, downloadComplete);
@@ -146,6 +151,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
                 (path.extname(fi.fileName).toLowerCase() === '.svf' ||
                     path.extname(fi.fileName).toLowerCase() === '.f2d')) {
                 _self._viewables.push({
+                    localPath: fi.localPath,
                     path: `/html/${path.normalize(fi.localPath + fi.fileName)}`,
                     name: fi.name,
                 });
@@ -498,7 +504,15 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         })
             .then(function (bubule) {
             console.log('\n\n\ndownload Bubble done\n\n\n');
-            console.log(bubule._viewables);
+            for (const thumbnail of bubule._thumbnail) {
+                for (const viewable of bubule._viewables) {
+                    if (thumbnail.localPath === viewable.localPath) {
+                        viewable.thumbnail = thumbnail.path;
+                        break;
+                    }
+                }
+            }
+            console.log('bubule._viewables', bubule._viewables);
             // model._children.clear();
             // for (var i = 0; i < bubule._viewables.length; i++) {
             //   model.add_child(new ForgeFileDerivativesItem(bubule._viewables[i]));

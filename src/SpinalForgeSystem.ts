@@ -37,6 +37,11 @@ type StateFunc = {
   func: () => Promise<void>,
 };
 
+type ViewableItem = {
+  path: string;
+  name: string;
+  thumbnail?: string;
+};
 export default class SpinalForgeSystem extends spinalProcess {
   fileVersionModel: FileVersionModel;
   classReady: boolean;
@@ -175,10 +180,15 @@ export default class SpinalForgeSystem extends spinalProcess {
       const viewables = await this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
       model.items.clear();
       for (let i = 0; i < viewables.length; i++) {
-        model.items.push(new Model({
+        const item: ViewableItem = {
           path: viewables[i].path,
           name: viewables[i].name,
-        }));
+        };
+        const thumbnail = viewables[i].thumbnail;
+        if (typeof thumbnail !== 'undefined') {
+          item.thumbnail = thumbnail;
+        }
+        model.items.push(new Model(item));
       }
       model.state.set(getState('Converted'));
     } catch (e) {

@@ -127,10 +127,15 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
                 const viewables = yield this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
                 model.items.clear();
                 for (let i = 0; i < viewables.length; i++) {
-                    model.items.push(new spinal_core_connectorjs_type_1.Model({
+                    const item = {
                         path: viewables[i].path,
                         name: viewables[i].name,
-                    }));
+                    };
+                    const thumbnail = viewables[i].thumbnail;
+                    if (typeof thumbnail !== 'undefined') {
+                        item.thumbnail = thumbnail;
+                    }
+                    model.items.push(new spinal_core_connectorjs_type_1.Model(item));
                 }
                 model.state.set(fileVersionState_1.getState('Converted'));
             }
