@@ -1,18 +1,25 @@
 {
   "name": "spinal-organ-forge",
-  "version": "v1.0.5",
+  "version": "v1.1.0",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "base64-url": "^1.3.3",
+    "base64-url": "^2.2.1",
     "forge-apis": "^0.3.0",
     "mkdirp": "^0.5.1",
     "node-zip": "^1.1.1",
     "q": "^1.5.1",
+    "spinal-core-connectorjs_type": "git+https://github.com/spinalcom/spinal-core-connectorjs_type.git",
     "spinal-core-system": "git+https://github.com/spinalcom/spinal-core-system.git",
-    "spinal-core-connectorjs": "git+https://github.com/spinalcom/spinal-core-connectorjs.git",
     "spinal-env-drive-plugin-forge": "git+https://github.com/spinalcom/spinal-env-drive-plugin-forge.git",
-    "spinal-lib-forgefile": "git+https://github.com/spinalcom/spinal-lib-forgefile.git"
+    "spinal-model-file_version_model": "git+https://github.com/spinalcom/spinal-model-file_version_model.git"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.12",
+    "typescript": "^3.2.2",
+    "tslint": "^5.11.0",
+    "tslint-config-airbnb": "^5.11.1"
   },
   "scripts": {
     "postinstall": "npm run spinal-register && npm run create-ln",
