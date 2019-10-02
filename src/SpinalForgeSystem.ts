@@ -28,6 +28,7 @@ import SpinalForgeUpload from './forge_modules/SpinalForgeUpload';
 import SpinalForgeTranslate from './forge_modules/SpinalForgeTranslate';
 import SpinalForgeWaitTranslate from './forge_modules/SpinalForgeWaitTranslate';
 import SpinalForgeDownloadDerivative from './forge_modules/SpinalForgeDownloadDerivative';
+import SpinalForgeGetProps from './forge_modules/SpinalForgeGetProps';
 import { Process as spinalProcess, Model } from 'spinal-core-connectorjs_type';
 import { FileVersionModel } from 'spinal-model-file_version_model';
 import { getStateLabel, getState } from './utils/fileVersionState';
@@ -55,7 +56,7 @@ export default class SpinalForgeSystem extends spinalProcess {
   spinalForgeDownloadDerivative: any;
   job: Promise<void>;
   urn: string;
-
+  bucketKey: string;
   constructor(fileVersionModel: FileVersionModel, filename: string) {
     super(fileVersionModel);
     this.fileVersionModel = fileVersionModel;
@@ -64,6 +65,7 @@ export default class SpinalForgeSystem extends spinalProcess {
     this.filename = filename;
     this.job = null;
     this.urn = '';
+    this.bucketKey = '';
   }
 
   createInfo() {
@@ -127,7 +129,7 @@ export default class SpinalForgeSystem extends spinalProcess {
       this.createInfo();
 
       const BUCKET_KEY = this.setupBucketKey(this.filename);
-
+      this.bucketKey = BUCKET_KEY;
       this.spinalForgeFile = new SpinalForgeFile(
         this.fileVersionModel,
         this.filename,
@@ -190,6 +192,7 @@ export default class SpinalForgeSystem extends spinalProcess {
         }
         model.items.push(new Model(item));
       }
+      await SpinalForgeGetProps(this.spinalForgeAuth, this.urn, this.bucketKey);
       model.state.set(getState('Converted'));
     } catch (e) {
       console.error(e);
@@ -206,10 +209,10 @@ export default class SpinalForgeSystem extends spinalProcess {
       .waitTranslate(this.urn)
       .then(() => { // resolve
         this.fileVersionModel.state.set(getState('Converting completed'));
-      },    (e) => { // reject
+      }, (e) => { // reject
         console.error(e);
         this.fileVersionModel.state.set(getState('Failed'));
-      },    (progress) => { // progress
+      }, (progress) => { // progress
         console.log(`[${this.filename}] progress => ${progress}`);
       });
   }

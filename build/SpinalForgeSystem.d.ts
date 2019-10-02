@@ -45,6 +45,7 @@ export default class SpinalForgeSystem extends spinalProcess {
     spinalForgeDownloadDerivative: any;
     job: Promise<void>;
     urn: string;
+    bucketKey: string;
     constructor(fileVersionModel: FileVersionModel, filename: string);
     createInfo(): void;
     setupBucketKey(filename: string): any;

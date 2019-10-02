@@ -37,6 +37,7 @@ const SpinalForgeUpload_1 = require("./forge_modules/SpinalForgeUpload");
 const SpinalForgeTranslate_1 = require("./forge_modules/SpinalForgeTranslate");
 const SpinalForgeWaitTranslate_1 = require("./forge_modules/SpinalForgeWaitTranslate");
 const SpinalForgeDownloadDerivative_1 = require("./forge_modules/SpinalForgeDownloadDerivative");
+const SpinalForgeGetProps_1 = require("./forge_modules/SpinalForgeGetProps");
 const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
 const fileVersionState_1 = require("./utils/fileVersionState");
 class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
@@ -48,6 +49,7 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
         this.filename = filename;
         this.job = null;
         this.urn = '';
+        this.bucketKey = '';
     }
     createInfo() {
         if (typeof this.fileVersionModel.info === 'undefined') {
@@ -96,6 +98,7 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
             this.classReady = true;
             this.createInfo();
             const BUCKET_KEY = this.setupBucketKey(this.filename);
+            this.bucketKey = BUCKET_KEY;
             this.spinalForgeFile = new SpinalForgeFile_1.default(this.fileVersionModel, this.filename);
             this.spinalForgeAuth = new SpinalForgeAuth_1.default(BUCKET_KEY);
             this.spinalForgeUpload = new SpinalForgeUpload_1.default(BUCKET_KEY, this.filename, this.spinalForgeAuth);
@@ -137,6 +140,7 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
                     }
                     model.items.push(new spinal_core_connectorjs_type_1.Model(item));
                 }
+                yield SpinalForgeGetProps_1.default(this.spinalForgeAuth, this.urn, this.bucketKey);
                 model.state.set(fileVersionState_1.getState('Converted'));
             }
             catch (e) {
