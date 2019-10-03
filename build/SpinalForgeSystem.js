@@ -37,7 +37,7 @@ const SpinalForgeUpload_1 = require("./forge_modules/SpinalForgeUpload");
 const SpinalForgeTranslate_1 = require("./forge_modules/SpinalForgeTranslate");
 const SpinalForgeWaitTranslate_1 = require("./forge_modules/SpinalForgeWaitTranslate");
 const SpinalForgeDownloadDerivative_1 = require("./forge_modules/SpinalForgeDownloadDerivative");
-const SpinalForgeGetProps_1 = require("./forge_modules/SpinalForgeGetProps");
+// import SpinalForgeGetProps from './forge_modules/SpinalForgeGetProps';
 const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
 const fileVersionState_1 = require("./utils/fileVersionState");
 class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
@@ -140,7 +140,7 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
                     }
                     model.items.push(new spinal_core_connectorjs_type_1.Model(item));
                 }
-                yield SpinalForgeGetProps_1.default(this.spinalForgeAuth, this.urn, this.bucketKey);
+                // await SpinalForgeGetProps(this.spinalForgeAuth, this.urn, this.bucketKey);
                 model.state.set(fileVersionState_1.getState('Converted'));
             }
             catch (e) {
