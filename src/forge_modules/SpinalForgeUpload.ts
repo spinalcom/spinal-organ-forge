@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -70,7 +70,7 @@ export default class SpinalForgeUpload {
         return this.uploadFile(oAuth);
       })
       .then(() => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           const filePath = path.resolve(OUT_DIR, this.filename);
           fs.unlink(filePath, () => {
             // model.state.set("Upload to forge completed");

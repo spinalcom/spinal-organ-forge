@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "base64-url": "^2.2.1",
-    "forge-apis": "^0.3.0",
+    "forge-apis": "^0.7.3",
     "mkdirp": "^0.5.1",
     "node-zip": "^1.1.1",
     "q": "^1.5.1",

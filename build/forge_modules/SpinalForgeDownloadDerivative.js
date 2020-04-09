@@ -1,6 +1,6 @@
 "use strict";
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -30,7 +30,7 @@ const derivativesApi = new forgeSDK.DerivativesApi();
 const zlib = require('zlib');
 const zip = require('node-zip');
 const mkdirp = require('mkdirp');
-function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
+function spinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
     // tslint:disable-next-line:variable-name no-this-assignment
     const _self = this;
     this._outPath = './';
@@ -53,17 +53,17 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         _self._viewables = []; // { path: '', name: '' }
         _self._errors = []; // ''
         _self._outPath = outPath;
-        return new Promise(function (fulfill) {
+        return new Promise((fulfill) => {
             console.log('download_manifest');
             // console.log(bubble);
-            listAllDerivativeFiles(bubble, modelUrn, function (error, result) {
+            listAllDerivativeFiles(bubble, modelUrn, (error, result) => {
                 // _self._progress._filesToFetch =result.list.length ;
                 console.log('Number of files to fetch:', result.list.length);
                 // _self._progress._estimatedSize =0 | (result.totalSize / (1024 * 1024)) ;
                 console.log('Estimated download size:', 0 | (result.totalSize / (1024 * 1024)), 'MB');
                 console.log('\n\nDownloading derivative files\n\n');
                 console.log(result);
-                downloadAllDerivativeFiles(result.list, _self._outPath, modelUrn, function (failed, succeeded) {
+                downloadAllDerivativeFiles(result.list, _self._outPath, modelUrn, (failed, succeeded) => {
                     _self.failed = failed;
                     _self.succeeded = succeeded;
                     console.log('\n\nDownloading derivative files END\n\n');
@@ -88,9 +88,9 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         let succeeded = 0;
         let failed = 0;
         const flatList = [];
-        for (let i = 0; i < fileList.length; i++) {
+        for (let i = 0; i < fileList.length; i += 1) {
             const item = fileList[i];
-            for (let j = 0; j < item.files.length; j++) {
+            for (let j = 0; j < item.files.length; j += 1) {
                 const flatItem = {
                     basePath: item.basePath,
                     localPath: destDir + item.localPath.replace(/\s/g, '_'),
@@ -117,17 +117,18 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         const downloadOneItem = function () {
             if (current >= flatList.length)
                 return;
-            const fi = flatList[current++];
+            const fi = flatList[current];
+            current += 1;
             console.log(`start to download ${fi.localPath}${fi.fileName}`);
             const downloadComplete = function (error) {
-                done++;
+                done += 1;
                 if (error) {
-                    failed++;
+                    failed += 1;
                     console.error('Failed to download file:', fi.localPath + fi.fileName, error);
                     _self._errors.push(`Failed to download file: ${fi.localPath}${fi.fileName}`);
                 }
                 else {
-                    succeeded++;
+                    succeeded += 1;
                     console.log('Downloaded:', fi.localPath + fi.fileName);
                 }
                 console.log('Progress:', ((100 * (failed + succeeded)) / flatList.length) | 0, '%');
@@ -158,7 +159,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
             }
         };
         // Kick off 10 parallel jobs
-        for (let k = 0; k < 10; k++)
+        for (let k = 0; k < 10; k += 1)
             downloadOneItem();
     }
     function getThumbnail(urn, guid, sz, outFile, callback) {
@@ -179,7 +180,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
             .callApi('/derivativeservice/v2/thumbnails/{urn}', 'GET', {
             urn,
         }, queryParams, {}, {}, null, [], ['application/octet-stream'], null, _self.oAuth, _self.oAuth.getCredentials())
-            .then(function (thumbnail) {
+            .then((thumbnail) => {
             const wstream = openWriteStream(outFile);
             if (wstream) {
                 wstream.write(thumbnail.body);
@@ -190,7 +191,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
                 callback(null, thumbnail.body);
             }
         })
-            .catch(function (error) {
+            .catch((error) => {
             console.error('Error:', error.message);
             _self._errors.push(`Error: ${error.message}`);
             callback(error, null);
@@ -203,7 +204,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         const countedPropDb = {};
         const processOne = function () {
             function onProgress() {
-                done++;
+                done += 1;
                 console.log('Manifests done ', done);
                 if (done === res.length) {
                     const result = {
@@ -218,7 +219,8 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
             }
             if (current >= res.length)
                 return;
-            const rootItem = res[current++];
+            const rootItem = res[current];
+            current += 1;
             let basePath;
             const files = (rootItem.files = []);
             if (rootItem.mime !== 'thumbnail')
@@ -245,7 +247,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
                 // Closure to capture loop-variant variable for the getItem callback
                 (function () {
                     const myItem = rootItem;
-                    getItem(rootItem.urn, null, modelUrn, function (error, vSuccess) {
+                    getItem(rootItem.urn, null, modelUrn, (error, vSuccess) => {
                         let success = vSuccess;
                         if (error)
                             _self._errors.push(`Failed to download ${myItem.urn}`);
@@ -264,7 +266,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
                                 _self._errors.push(e.message);
                             }
                             if (manifest && manifest.assets) {
-                                for (let j = 0; j < manifest.assets.length; j++) {
+                                for (let j = 0; j < manifest.assets.length; j += 1) {
                                     const asset = manifest.assets[j];
                                     // Skip SVF embedded resources
                                     if (asset.URI.indexOf('embed:/') === 0)
@@ -300,7 +302,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
                 // Closure to capture loop-variant variable for the getItem callback
                 (function () {
                     const myItem = rootItem;
-                    getItem(manifestPath, null, modelUrn, function (error, vSuccess) {
+                    getItem(manifestPath, null, modelUrn, (error, vSuccess) => {
                         let success = vSuccess;
                         if (error)
                             _self._errors.push('Failed to download ${myItem.urn}');
@@ -318,7 +320,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
                                 _self._errors.push(e.message);
                             }
                             if (manifest && manifest.assets) {
-                                for (let j = 0; j < manifest.assets.length; j++) {
+                                for (let j = 0; j < manifest.assets.length; j += 1) {
                                     const asset = manifest.assets[j];
                                     // Skip non-local property db files
                                     // Those are listed explicitly in the bubble as property database role
@@ -341,7 +343,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
             }
         };
         // Kick off 6 parallel jobs
-        for (let k = 0; k < 6; k++)
+        for (let k = 0; k < 6; k += 1)
             processOne();
     }
     function traverse_node(node, parent, res, bubble) {
@@ -380,7 +382,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         if (node.type === 'geometry') {
             if (node.intermediateFile && node.children) {
                 let f2dNode;
-                for (let i = 0; i < node.children.length; i++) {
+                for (let i = 0; i < node.children.length; i += 1) {
                     if (node.children[i].mime === 'application/autodesk-f2d') {
                         f2dNode = node.children[i];
                         break;
@@ -407,12 +409,12 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
             }
         }
         if (node.children) {
-            node.children.forEach(function (child) {
+            node.children.forEach((child) => {
                 traverse_node(child, node, res, bubble);
             });
         }
         if (node.derivatives) {
-            node.derivatives.forEach(function (child) {
+            node.derivatives.forEach((child) => {
                 traverse_node(child, node, res, bubble);
             });
         }
@@ -437,7 +439,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
     function getItem(itemUrn, outFile, modelUrn, callback) {
         // console.log ('-> ' + itemUrn) ;
         downloadItem(itemUrn, modelUrn)
-            .then(function (response) {
+            .then((response) => {
             if (response.statusCode !== 200)
                 return callback(response.statusCode);
             // Skip unzipping of items to make the downloaded content compatible with viewer debugging
@@ -454,7 +456,7 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
                 callback(null, response.body);
             }
         })
-            .catch(function (error) {
+            .catch((error) => {
             console.error(error);
             _self._errors.push(`Error: ${error.message}`);
             callback(error, null);
@@ -466,14 +468,10 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         if (urn === undefined || urn === null) {
             return Promise.reject("Missing the required parameter 'urn' when calling downloadItem");
         }
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             derivativesApi
                 .getDerivativeManifest(modelUrn, urn, null, _self.oAuth, _self.oAuth.getCredentials())
-                .then(function (res) {
-                resolve(res);
-            }, function (err) {
-                reject(err);
-            });
+                .then(resolve, reject);
         });
     }
     function openWriteStream(outFile) {
@@ -493,16 +491,16 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         console.log('Starting to Download the file svf in forge and upload it to the SpinalCore.');
         return spinalForgeAuth
             .auth_and_getBucket()
-            .then(function (oAuth) {
+            .then((oAuth) => {
             // console.log(model.get());
             // let urn = model.urn.get();
             _self.oAuth = oAuth;
             return getManifest(oAuth, urn);
         })
-            .then(function (bubbleRqst) {
+            .then((bubbleRqst) => {
             return downloadBubble(bubbleRqst.body, `./viewerForgeFiles/${BUCKET_KEY}/`, urn);
         })
-            .then(function (bubule) {
+            .then((bubule) => {
             console.log('\n\n\ndownload Bubble done\n\n\n');
             for (const thumbnail of bubule._thumbnail) {
                 for (const viewable of bubule._viewables) {
@@ -529,5 +527,5 @@ function SpinalForgeDownloadDerivative(BUCKET_KEY, spinalForgeAuth) {
         return run(urn);
     };
 }
-exports.default = SpinalForgeDownloadDerivative;
+exports.default = spinalForgeDownloadDerivative;
 //# sourceMappingURL=SpinalForgeDownloadDerivative.js.map

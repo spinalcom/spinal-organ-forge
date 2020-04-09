@@ -1,15 +1,6 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -31,6 +22,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
 const path = require('path');
 const derivativesApi = new (require('forge-apis').DerivativesApi)();
@@ -56,7 +57,7 @@ function getProps(oAuth, urn, guid) {
 }
 function get3D(metadata) {
     for (const data of metadata.data.metadata) {
-        if (data.role === "3d")
+        if (data.role === '3d')
             return data;
     }
 }
@@ -67,32 +68,32 @@ function wait(milsecond) {
         }, milsecond);
     });
 }
-function SpinalForgeGetProps(spinalForgeAuth, urn, bucketKey) {
+function spinalForgeGetProps(spinalForgeAuth, urn, bucketKey) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("START SpinalForgeGetProps");
+        console.log('START SpinalForgeGetProps');
         const oAuth = yield spinalForgeAuth.auth_and_getBucket();
         const metadata = yield getMetadata(oAuth, urn);
         const child = get3D(metadata);
-        console.log("get3D", child);
+        console.log('get3D', child);
         // try {
         while (true) {
             const props = yield getProps(oAuth, urn, child.guid);
-            console.log("props", props);
-            if (typeof props.data === "undefined") {
+            console.log('props', props);
+            if (typeof props.data === 'undefined') {
                 yield wait(1000);
             }
             else {
-                const RPath = path.resolve('viewerForgeFiles', bucketKey, 'propsList.json');
-                fs_1.writeFileSync(RPath, JSON.stringify(props));
+                const rPath = path.resolve('viewerForgeFiles', bucketKey, 'propsList.json');
+                fs_1.writeFileSync(rPath, JSON.stringify(props));
                 return props;
             }
         }
         // } catch (e) {
         //   console.log(e);
-        // } 
+        // }
     });
 }
-exports.default = SpinalForgeGetProps;
+exports.default = spinalForgeGetProps;
 // class SpinalForgeWaitTranslate {
 //   spinalForgeAuth: any;
 //   constructor(spinalForgeAuth: any) {

@@ -1,6 +1,6 @@
 "use strict";
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -37,14 +37,12 @@ class SpinalForgeTranslate {
     getObjects(oAuth) {
         console.log('**** Uploading file List in the bucket.');
         const promise = (resolve, reject) => {
-            objectsApi.getObjects(this.bucketKey, {}, oAuth, oAuth.getCredentials()).then(function (res) {
+            objectsApi.getObjects(this.bucketKey, {}, oAuth, oAuth.getCredentials()).then((res) => {
                 resolve({
                     auth: oAuth,
                     res: res.body.items,
                 });
-            }, function (err) {
-                reject(err);
-            });
+            }, reject);
         };
         return new Promise(promise);
         // return objectsApi.getObjects(this.bucketKey, {}, oAuth, oAuth.getCredentials())
@@ -65,6 +63,9 @@ class SpinalForgeTranslate {
                         type: 'svf',
                         views: ['3d', '2d'],
                     }],
+                advanced: {
+                    generateMasterViews: true,
+                },
             },
         };
         if (path.extname(this.filename).toLowerCase() === '.zip') {
@@ -72,18 +73,16 @@ class SpinalForgeTranslate {
             const idx = this.filename.lastIndexOf('.zip');
             job.input.rootFilename = this.filename.slice(0, idx);
         }
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             console.log('**** Translate');
             derivativesApi
                 .translate(job, { xAdsForce: true }, oAuth, oAuth.getCredentials())
-                .then(function (res) {
+                .then((res) => {
                 resolve({
                     auth: oAuth,
                     res: res.body,
                 });
-            }, function (err) {
-                reject(err);
-            });
+            }, reject);
         });
         // return derivativesApi
         //   .translate(job, { xAdsForce: true },
@@ -105,10 +104,14 @@ class SpinalForgeTranslate {
             console.log('==== end getObjects');
             const list = res.res;
             console.log(list);
-            for (let i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i += 1) {
                 if (list[i].objectKey === this.filename) {
                     return this.convertObj(res.auth, list[i]).then((req) => {
                         console.log('==== translateInForge end', req);
+                        try {
+                            console.log('Jobs => ', JSON.stringify(req.res.acceptedJobs, null, 2));
+                        }
+                        catch (e) { }
                         return (req.res.urn);
                     });
                 }

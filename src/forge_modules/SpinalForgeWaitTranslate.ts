@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -41,7 +41,9 @@ export default class SpinalForgeWaitTranslate {
   waitTranslateDefer(oAuth: any, urn: string) {
     const defer = q.defer();
     const fctRepeat = (requestRes?: any) => {
-      console.log(requestRes);
+      if (requestRes) {
+        console.log('requestRes', JSON.stringify(requestRes, null, 2));
+      }
       if (
         requestRes === undefined ||
         requestRes.status === 'pending' ||
@@ -54,12 +56,12 @@ export default class SpinalForgeWaitTranslate {
         setTimeout(() => {
           this
             .getManifest(oAuth, urn)
-            .then((res) => fctRepeat(res))
+            .then(res => fctRepeat(res))
             .catch((err: any) => { throw err; });
         },         5000);
       } else if (requestRes.status === 'failed') {
         console.log('Error from autodesk forge!');
-        for (let i = 0; i < requestRes.derivatives.length; i++) {
+        for (let i = 0; i < requestRes.derivatives.length; i += 1) {
           console.log(requestRes.derivatives[i].messages);
         }
         defer.reject('Error from autodesk forge');
