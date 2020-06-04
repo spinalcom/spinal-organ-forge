@@ -38,11 +38,31 @@ export default class SpinalForgeWaitTranslate {
       .catch((err: any) => { throw err; });
   }
 
+  printRequest(requestRes) {
+    /**
+     * {
+     *   "status": "success",
+     *   "progress": "complete",
+     *   "derivatives": [{
+     *     "name": "2019.09.12_FELIX EBOUEE 6243.rvt",
+     *     "status": "success",
+     *     "progress": "complete",
+     *   }]
+     * }
+     */
+    console.log('*** manifest start ***');
+    console.log(`status: ${requestRes.status}, progress: ${requestRes.progress}`);
+    for (const derivative of requestRes.derivatives) {
+      console.log(` - ${derivative.status} -- ${derivative.progress} -- ${derivative.name}`);
+    }
+    console.log('*** manifest end ***');
+  }
+
   waitTranslateDefer(oAuth: any, urn: string) {
     const defer = q.defer();
     const fctRepeat = (requestRes?: any) => {
       if (requestRes) {
-        console.log('requestRes', JSON.stringify(requestRes, null, 2));
+        this.printRequest(requestRes);
       }
       if (
         requestRes === undefined ||
