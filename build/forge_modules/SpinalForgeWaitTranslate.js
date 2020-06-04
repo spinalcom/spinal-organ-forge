@@ -1,6 +1,6 @@
 "use strict";
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -36,10 +36,31 @@ class SpinalForgeWaitTranslate {
             .then((res) => res.body)
             .catch((err) => { throw err; });
     }
+    printRequest(requestRes) {
+        /**
+         * {
+         *   "status": "success",
+         *   "progress": "complete",
+         *   "derivatives": [{
+         *     "name": "2019.09.12_FELIX EBOUEE 6243.rvt",
+         *     "status": "success",
+         *     "progress": "complete",
+         *   }]
+         * }
+         */
+        console.log('*** manifest start ***');
+        console.log(`status: ${requestRes.status}, progress: ${requestRes.progress}`);
+        for (const derivative of requestRes.derivatives) {
+            console.log(` - ${derivative.status} -- ${derivative.progress} -- ${derivative.name}`);
+        }
+        console.log('*** manifest end ***');
+    }
     waitTranslateDefer(oAuth, urn) {
         const defer = q.defer();
         const fctRepeat = (requestRes) => {
-            console.log(requestRes);
+            if (requestRes) {
+                this.printRequest(requestRes);
+            }
             if (requestRes === undefined ||
                 requestRes.status === 'pending' ||
                 requestRes.status === 'inprogress') {
@@ -50,13 +71,13 @@ class SpinalForgeWaitTranslate {
                 setTimeout(() => {
                     this
                         .getManifest(oAuth, urn)
-                        .then((res) => fctRepeat(res))
+                        .then(res => fctRepeat(res))
                         .catch((err) => { throw err; });
                 }, 5000);
             }
             else if (requestRes.status === 'failed') {
                 console.log('Error from autodesk forge!');
-                for (let i = 0; i < requestRes.derivatives.length; i++) {
+                for (let i = 0; i < requestRes.derivatives.length; i += 1) {
                     console.log(requestRes.derivatives[i].messages);
                 }
                 defer.reject('Error from autodesk forge');

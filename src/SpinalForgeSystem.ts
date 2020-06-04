@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -21,7 +21,6 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-
 import SpinalForgeAuth from './forge_modules/SpinalForgeAuth';
 import SpinalForgeFile from './forge_modules/SpinalForgeFile';
 import SpinalForgeUpload from './forge_modules/SpinalForgeUpload';
@@ -87,7 +86,7 @@ export default class SpinalForgeSystem extends spinalProcess {
       this.fileVersionModel.info.bucketKey.get() !== ''
     ) {
       return this.fileVersionModel.info.bucketKey.get();
-    } else {
+    } {
       const tmpBucketKey =
         `spinal_${encodeURIComponent(filename)}_${Date.now()}`;
       const BUCKET_KEY = encodeURIComponent(
@@ -181,7 +180,7 @@ export default class SpinalForgeSystem extends spinalProcess {
     try {
       const viewables = await this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
       model.items.clear();
-      for (let i = 0; i < viewables.length; i++) {
+      for (let i = 0; i < viewables.length; i += 1) {
         const item: ViewableItem = {
           path: viewables[i].path,
           name: viewables[i].name,
@@ -209,11 +208,12 @@ export default class SpinalForgeSystem extends spinalProcess {
       .waitTranslate(this.urn)
       .then(() => { // resolve
         this.fileVersionModel.state.set(getState('Converting completed'));
-      }, (e) => { // reject
+      },    (e) => { // reject
         console.error(e);
         this.fileVersionModel.state.set(getState('Failed'));
-      }, (progress) => { // progress
+      },    (progress) => { // progress
         console.log(`[${this.filename}] progress => ${progress}`);
+        this.fileVersionModel.info.translation.set(parseInt(progress, 10));
       });
   }
 

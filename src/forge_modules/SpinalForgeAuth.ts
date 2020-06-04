@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -77,7 +77,7 @@ export default class SpinalForgeAuth {
     }
   }
 
-  async auth(): Promise<OAuthToken>  {
+  async auth(): Promise<OAuthToken> {
     this.oAuth2TwoLegged = new forgeSDK.AuthClientTwoLegged(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,

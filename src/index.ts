@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -77,7 +77,7 @@ const callbackSuccess = (fileVersionModel: FileVersionModel) => {
       console.log(`new filenameVersion :${filename}`);
       new SpinalForgeSystem(fileVersionModel, filename);
     },
-    e => {
+    (e) => {
       console.error(e);
     },
   );

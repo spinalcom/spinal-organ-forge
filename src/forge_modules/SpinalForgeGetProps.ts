@@ -1,6 +1,5 @@
-
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -22,8 +21,9 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-import { writeFileSync } from "fs";
-const path = require('path')
+
+import { writeFileSync } from 'fs';
+const path = require('path');
 const derivativesApi = new (require('forge-apis').DerivativesApi)();
 
 // getMetadata
@@ -51,7 +51,7 @@ function getProps(oAuth: any, urn: string, guid: string) {
 }
 function get3D(metadata) {
   for (const data of metadata.data.metadata) {
-    if (data.role === "3d") return data;
+    if (data.role === '3d') return data;
   }
 }
 
@@ -59,27 +59,28 @@ function wait(milsecond) {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-    }, milsecond);
-  })
+    },         milsecond);
+  });
 }
 
+export default async function spinalForgeGetProps(spinalForgeAuth: any,
+                                                  urn: string,
+                                                  bucketKey: string) {
+  console.log('START SpinalForgeGetProps');
 
-export default async function SpinalForgeGetProps(spinalForgeAuth: any, urn: string, bucketKey: string) {
-  console.log("START SpinalForgeGetProps");
-
-  const oAuth = await spinalForgeAuth.auth_and_getBucket()
+  const oAuth = await spinalForgeAuth.auth_and_getBucket();
   const metadata = await getMetadata(oAuth, urn);
-  const child = get3D(metadata)
-  console.log("get3D", child);
+  const child = get3D(metadata);
+  console.log('get3D', child);
   // try {
   while (true) {
-    const props = await getProps(oAuth, urn, child.guid)
-    console.log("props", props);
-    if (typeof props.data === "undefined") {
+    const props = await getProps(oAuth, urn, child.guid);
+    console.log('props', props);
+    if (typeof props.data === 'undefined') {
       await wait(1000);
     } else {
-      const RPath = path.resolve('viewerForgeFiles', bucketKey, 'propsList.json');
-      writeFileSync(RPath, JSON.stringify(props));
+      const rPath = path.resolve('viewerForgeFiles', bucketKey, 'propsList.json');
+      writeFileSync(rPath, JSON.stringify(props));
       return props;
     }
   }
@@ -87,7 +88,7 @@ export default async function SpinalForgeGetProps(spinalForgeAuth: any, urn: str
   // } catch (e) {
   //   console.log(e);
 
-  // } 
+  // }
 
 }
 

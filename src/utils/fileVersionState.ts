@@ -22,27 +22,27 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 const fileVersionState = [
-    'Inital',
-    'Send tranlation command to organ',
-    'File downloading to Organ',
-    'File download to Organ completed',
-    'Uploading file to Forge',
-    'Upload file to Forge completed',
-    'In queue for conversion',
-    'Converting',
-    'Converting completed',
-    'Download converted file',
-    'Converted',
-    'Failed',
+  'Inital',
+  'Send tranlation command to organ',
+  'File downloading to Organ',
+  'File download to Organ completed',
+  'Uploading file to Forge',
+  'Upload file to Forge completed',
+  'In queue for conversion',
+  'Converting',
+  'Converting completed',
+  'Download converted file',
+  'Converted',
+  'Failed',
 ];
 export default fileVersionState;
 
 export function getStateLabel(state: number): string {
-    return fileVersionState[state];
+  return fileVersionState[state];
 }
 export function getState(stateLabel: string): number {
-    for (let index = 0; index < fileVersionState.length; index++) {
-        if (stateLabel === fileVersionState[index]) return index;
-    }
-    return undefined;
+  for (let index = 0; index < fileVersionState.length; index += 1) {
+    if (stateLabel === fileVersionState[index]) return index;
+  }
+  return undefined;
 }

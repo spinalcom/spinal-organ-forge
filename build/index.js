@@ -1,6 +1,6 @@
 "use strict";
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -69,7 +69,7 @@ const callbackSuccess = (fileVersionModel) => {
         }
         console.log(`new filenameVersion :${filename}`);
         new SpinalForgeSystem_1.default(fileVersionModel, filename);
-    }, e => {
+    }, (e) => {
         console.error(e);
     });
 };

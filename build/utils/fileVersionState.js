@@ -43,7 +43,7 @@ function getStateLabel(state) {
 }
 exports.getStateLabel = getStateLabel;
 function getState(stateLabel) {
-    for (let index = 0; index < fileVersionState.length; index++) {
+    for (let index = 0; index < fileVersionState.length; index += 1) {
         if (stateLabel === fileVersionState[index])
             return index;
     }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 SpinalCom - www.spinalcom.com
+/*
+ * Copyright 2020 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -49,7 +49,7 @@ type QueryParams = {
   guid?: string,
 };
 
-export default function SpinalForgeDownloadDerivative(
+export default function spinalForgeDownloadDerivative(
   BUCKET_KEY,
   spinalForgeAuth,
 ) {
@@ -92,10 +92,10 @@ export default function SpinalForgeDownloadDerivative(
     _self._viewables = []; // { path: '', name: '' }
     _self._errors = []; // ''
     _self._outPath = outPath;
-    return new Promise(function (fulfill) {
+    return new Promise((fulfill) => {
       console.log('download_manifest');
       // console.log(bubble);
-      listAllDerivativeFiles(bubble, modelUrn, function (error, result) {
+      listAllDerivativeFiles(bubble, modelUrn, (error, result) => {
         // _self._progress._filesToFetch =result.list.length ;
         console.log('Number of files to fetch:', result.list.length);
         // _self._progress._estimatedSize =0 | (result.totalSize / (1024 * 1024)) ;
@@ -106,10 +106,10 @@ export default function SpinalForgeDownloadDerivative(
         );
         console.log('\n\nDownloading derivative files\n\n');
         console.log(result);
-        downloadAllDerivativeFiles(result.list, _self._outPath, modelUrn, function (
+        downloadAllDerivativeFiles(result.list, _self._outPath, modelUrn, (
           failed,
           succeeded,
-        ) {
+        ) => {
           _self.failed = failed;
           _self.succeeded = succeeded;
           console.log('\n\nDownloading derivative files END\n\n');
@@ -135,9 +135,9 @@ export default function SpinalForgeDownloadDerivative(
     let succeeded = 0;
     let failed = 0;
     const flatList = [];
-    for (let i = 0; i < fileList.length; i++) {
+    for (let i = 0; i < fileList.length; i += 1) {
       const item = fileList[i];
-      for (let j = 0; j < item.files.length; j++) {
+      for (let j = 0; j < item.files.length; j += 1) {
         const flatItem: FlatItem = {
           basePath: item.basePath,
           localPath: destDir + item.localPath.replace(/\s/g, '_'),
@@ -161,12 +161,13 @@ export default function SpinalForgeDownloadDerivative(
     let done = 0;
     const downloadOneItem = function () {
       if (current >= flatList.length) return;
-      const fi = flatList[current++];
+      const fi = flatList[current];
+      current += 1;
       console.log(`start to download ${fi.localPath}${fi.fileName}`);
       const downloadComplete = function (error) {
-        done++;
+        done += 1;
         if (error) {
-          failed++;
+          failed += 1;
           console.error(
             'Failed to download file:',
             fi.localPath + fi.fileName,
@@ -176,7 +177,7 @@ export default function SpinalForgeDownloadDerivative(
             `Failed to download file: ${fi.localPath}${fi.fileName}`,
           );
         } else {
-          succeeded++;
+          succeeded += 1;
           console.log('Downloaded:', fi.localPath + fi.fileName);
         }
         console.log(
@@ -221,7 +222,7 @@ export default function SpinalForgeDownloadDerivative(
       }
     };
     // Kick off 10 parallel jobs
-    for (let k = 0; k < 10; k++) downloadOneItem();
+    for (let k = 0; k < 10; k += 1) downloadOneItem();
   }
 
   function getThumbnail(urn, guid, sz, outFile, callback) {
@@ -242,8 +243,7 @@ export default function SpinalForgeDownloadDerivative(
     modelDerivative.apiClient
       .callApi(
         '/derivativeservice/v2/thumbnails/{urn}',
-        'GET',
-        {
+        'GET', {
           urn,
         },
         queryParams,
@@ -256,7 +256,7 @@ export default function SpinalForgeDownloadDerivative(
         _self.oAuth,
         _self.oAuth.getCredentials(),
       )
-      .then(function (thumbnail) {
+      .then((thumbnail) => {
         const wstream = openWriteStream(outFile);
         if (wstream) {
           wstream.write(thumbnail.body);
@@ -266,7 +266,7 @@ export default function SpinalForgeDownloadDerivative(
           callback(null, thumbnail.body);
         }
       })
-      .catch(function (error) {
+      .catch((error) => {
         console.error('Error:', error.message);
         _self._errors.push(`Error: ${error.message}`);
         callback(error, null);
@@ -281,7 +281,7 @@ export default function SpinalForgeDownloadDerivative(
 
     const processOne = function () {
       function onProgress() {
-        done++;
+        done += 1;
         console.log('Manifests done ', done);
         if (done === res.length) {
           const result = {
@@ -295,7 +295,8 @@ export default function SpinalForgeDownloadDerivative(
       }
 
       if (current >= res.length) return;
-      const rootItem = res[current++];
+      const rootItem = res[current];
+      current += 1;
       let basePath;
       const files = (rootItem.files = []);
       if (rootItem.mime !== 'thumbnail') basePath = rootItem.basePath;
@@ -319,7 +320,7 @@ export default function SpinalForgeDownloadDerivative(
         // Closure to capture loop-variant variable for the getItem callback
         (function () {
           const myItem = rootItem;
-          getItem(rootItem.urn, null, modelUrn, function (error, vSuccess) {
+          getItem(rootItem.urn, null, modelUrn, (error, vSuccess) => {
             let success = vSuccess;
             if (error) _self._errors.push(`Failed to download ${myItem.urn}`);
             if (success) {
@@ -336,7 +337,7 @@ export default function SpinalForgeDownloadDerivative(
                 _self._errors.push(e.message);
               }
               if (manifest && manifest.assets) {
-                for (let j = 0; j < manifest.assets.length; j++) {
+                for (let j = 0; j < manifest.assets.length; j += 1) {
                   const asset = manifest.assets[j];
                   // Skip SVF embedded resources
                   if (asset.URI.indexOf('embed:/') === 0) continue;
@@ -370,7 +371,7 @@ export default function SpinalForgeDownloadDerivative(
         // Closure to capture loop-variant variable for the getItem callback
         (function () {
           const myItem = rootItem;
-          getItem(manifestPath, null, modelUrn, function (error, vSuccess) {
+          getItem(manifestPath, null, modelUrn, (error, vSuccess) => {
             let success = vSuccess;
             if (error) _self._errors.push('Failed to download ${myItem.urn}');
             if (success) {
@@ -386,7 +387,7 @@ export default function SpinalForgeDownloadDerivative(
                 _self._errors.push(e.message);
               }
               if (manifest && manifest.assets) {
-                for (let j = 0; j < manifest.assets.length; j++) {
+                for (let j = 0; j < manifest.assets.length; j += 1) {
                   const asset = manifest.assets[j];
                   // Skip non-local property db files
                   // Those are listed explicitly in the bubble as property database role
@@ -407,7 +408,7 @@ export default function SpinalForgeDownloadDerivative(
       }
     };
     // Kick off 6 parallel jobs
-    for (let k = 0; k < 6; k++) processOne();
+    for (let k = 0; k < 6; k += 1) processOne();
   }
 
   function traverse_node(node, parent, res, bubble) {
@@ -450,7 +451,7 @@ export default function SpinalForgeDownloadDerivative(
     if (node.type === 'geometry') {
       if (node.intermediateFile && node.children) {
         let f2dNode;
-        for (let i = 0; i < node.children.length; i++) {
+        for (let i = 0; i < node.children.length; i += 1) {
           if (node.children[i].mime === 'application/autodesk-f2d') {
             f2dNode = node.children[i];
             break;
@@ -477,12 +478,12 @@ export default function SpinalForgeDownloadDerivative(
       }
     }
     if (node.children) {
-      node.children.forEach(function (child) {
+      node.children.forEach((child) => {
         traverse_node(child, node, res, bubble);
       });
     }
     if (node.derivatives) {
-      node.derivatives.forEach(function (child) {
+      node.derivatives.forEach((child) => {
         traverse_node(child, node, res, bubble);
       });
     }
@@ -509,7 +510,7 @@ export default function SpinalForgeDownloadDerivative(
   function getItem(itemUrn, outFile, modelUrn, callback) {
     // console.log ('-> ' + itemUrn) ;
     downloadItem(itemUrn, modelUrn)
-      .then(function (response) {
+      .then((response) => {
         if (response.statusCode !== 200) return callback(response.statusCode);
         // Skip unzipping of items to make the downloaded content compatible with viewer debugging
         const wstream = openWriteStream(outFile);
@@ -526,7 +527,7 @@ export default function SpinalForgeDownloadDerivative(
           callback(null, response.body);
         }
       })
-      .catch(function (error) {
+      .catch((error) => {
         console.error(error);
         _self._errors.push(`Error: ${error.message}`);
         callback(error, null);
@@ -541,7 +542,7 @@ export default function SpinalForgeDownloadDerivative(
         "Missing the required parameter 'urn' when calling downloadItem",
       );
     }
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       derivativesApi
         .getDerivativeManifest(
           modelUrn,
@@ -550,14 +551,7 @@ export default function SpinalForgeDownloadDerivative(
           _self.oAuth,
           _self.oAuth.getCredentials(),
         )
-        .then(
-          function (res) {
-            resolve(res);
-          },
-          function (err) {
-            reject(err);
-          },
-        );
+        .then(resolve, reject);
     });
   }
   function openWriteStream(outFile) {
@@ -579,20 +573,20 @@ export default function SpinalForgeDownloadDerivative(
     );
     return spinalForgeAuth
       .auth_and_getBucket()
-      .then(function (oAuth) {
+      .then((oAuth) => {
         // console.log(model.get());
         // let urn = model.urn.get();
         _self.oAuth = oAuth;
         return getManifest(oAuth, urn);
       })
-      .then(function (bubbleRqst) {
+      .then((bubbleRqst) => {
         return downloadBubble(
           bubbleRqst.body,
           `./viewerForgeFiles/${BUCKET_KEY}/`,
           urn,
         );
       })
-      .then(function (bubule) {
+      .then((bubule) => {
         console.log('\n\n\ndownload Bubble done\n\n\n');
         for (const thumbnail of bubule._thumbnail) {
           for (const viewable of bubule._viewables) {

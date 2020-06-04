@@ -1,1 +1,1 @@
-export default function SpinalForgeGetProps(spinalForgeAuth: any, urn: string, bucketKey: string): Promise<any>;
+export default function spinalForgeGetProps(spinalForgeAuth: any, urn: string, bucketKey: string): Promise<any>;
