@@ -32,10 +32,19 @@ export default class SpinalForgeWaitTranslate {
   }
   getManifest(oAuth: any, urn: string) {
     console.log('**** getManifest');
-    return derivativesApi
-      .getManifest(urn, null, oAuth, oAuth.getCredentials())
-      .then((res: any) => res.body)
-      .catch((err: any) => { throw err; });
+    const defer = q.defer();
+    const fct = () => {
+      derivativesApi
+        .getManifest(urn, null, oAuth, oAuth.getCredentials())
+        .then((res: any) => {
+          defer.resolve(res.body);
+        }).catch((err: any) => {
+          console.error(err);
+          return setTimeout(fct, 6000);
+        });
+    };
+    fct();
+    return defer.promise;
   }
 
   printRequest(requestRes) {
@@ -78,7 +87,7 @@ export default class SpinalForgeWaitTranslate {
             .getManifest(oAuth, urn)
             .then(res => fctRepeat(res))
             .catch((err: any) => { throw err; });
-        },         5000);
+        },         10000);
       } else if (requestRes.status === 'failed') {
         console.log('Error from autodesk forge!');
         for (let i = 0; i < requestRes.derivatives.length; i += 1) {
