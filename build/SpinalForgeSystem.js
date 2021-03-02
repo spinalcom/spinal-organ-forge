@@ -41,6 +41,7 @@ const SpinalForgeDownloadDerivative_1 = require("./forge_modules/SpinalForgeDown
 // import SpinalForgeGetProps from './forge_modules/SpinalForgeGetProps';
 const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
 const fileVersionState_1 = require("./utils/fileVersionState");
+const QueueJobHandle_1 = require("./utils/QueueJobHandle");
 class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
     constructor(fileVersionModel, filename) {
         super(fileVersionModel);
@@ -51,6 +52,8 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
         this.job = null;
         this.urn = '';
         this.bucketKey = '';
+        this.uid = SpinalForgeSystem.uidCounter;
+        SpinalForgeSystem.uidCounter = SpinalForgeSystem.uidCounter + 1;
     }
     createInfo() {
         if (typeof this.fileVersionModel.info === 'undefined') {
@@ -115,7 +118,7 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
             this.addState('Converting', this.waitConversion.bind(this));
             this.addState('Converting completed', this.downloadDerivative.bind(this));
             this.addState('Download converted file', this.downloadDerivative.bind(this));
-            this.addState('Converted', placeholerFct);
+            this.addState('Converted', convertionFinished);
         }
     }
     downloadDerivative() {
@@ -147,6 +150,10 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
             catch (e) {
                 console.error(e);
                 model.state.set(fileVersionState_1.getState('Failed'));
+            }
+            finally {
+                // JOB DONE
+                console.log('convertionFinished');
             }
         });
     }
@@ -207,24 +214,34 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
         });
     }
     onchange() {
-        if (typeof this.fileVersionModel.state === 'undefined' ||
-            this.fileVersionModel.state.get() === 0) {
-            return;
-        }
-        this.init();
-        const modelState = this.fileVersionModel.state.get();
-        const stateLabel = fileVersionState_1.getStateLabel(modelState);
-        console.log(`[${this.filename}] (${modelState}) state => ${stateLabel}`);
-        for (const stateJob of this.stateFunc) {
-            if (stateJob.state === stateLabel) {
-                return stateJob.func();
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof this.fileVersionModel.state === 'undefined' ||
+                this.fileVersionModel.state.get() === 0 || // 'Inital'
+                this.fileVersionModel.state.get() === 10 || // 'Converted'
+                this.fileVersionModel.state.get() === 11 // 'Failed'
+            ) {
+                if (this.classReady === true)
+                    QueueJobHandle_1.queueJobHandle.finishedJob(this.uid);
+                return;
             }
-        }
+            yield QueueJobHandle_1.queueJobHandle.waitJob(this.uid);
+            this.init();
+            const modelState = this.fileVersionModel.state.get();
+            const stateLabel = fileVersionState_1.getStateLabel(modelState);
+            console.log(`[${this.filename}] (${modelState}) state => ${stateLabel}`);
+            for (const stateJob of this.stateFunc) {
+                if (stateJob.state === stateLabel) {
+                    return stateJob.func();
+                }
+            }
+        });
     }
 }
 exports.default = SpinalForgeSystem;
-function placeholerFct() {
-    console.log('placeholer');
+// tslint:disable-next-line:variable-name
+SpinalForgeSystem.uidCounter = 0;
+function convertionFinished() {
+    // console.log('convertionFinished');
     return Promise.resolve();
 }
 //# sourceMappingURL=SpinalForgeSystem.js.map

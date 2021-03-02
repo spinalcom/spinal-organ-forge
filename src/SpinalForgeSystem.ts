@@ -31,6 +31,7 @@ import SpinalForgeDownloadDerivative from './forge_modules/SpinalForgeDownloadDe
 import { Process as spinalProcess, Model } from 'spinal-core-connectorjs_type';
 import { FileVersionModel } from 'spinal-model-file_version_model';
 import { getStateLabel, getState } from './utils/fileVersionState';
+import { queueJobHandle } from './utils/QueueJobHandle';
 
 type StateFunc = {
   state: string,
@@ -43,6 +44,9 @@ type ViewableItem = {
   thumbnail?: string;
 };
 export default class SpinalForgeSystem extends spinalProcess {
+  // tslint:disable-next-line:variable-name
+  private static uidCounter = 0;
+  uid; number;
   fileVersionModel: FileVersionModel;
   classReady: boolean;
   filename: string;
@@ -65,6 +69,8 @@ export default class SpinalForgeSystem extends spinalProcess {
     this.job = null;
     this.urn = '';
     this.bucketKey = '';
+    this.uid = SpinalForgeSystem.uidCounter;
+    SpinalForgeSystem.uidCounter = SpinalForgeSystem.uidCounter + 1;
   }
 
   createInfo() {
@@ -165,7 +171,7 @@ export default class SpinalForgeSystem extends spinalProcess {
       this.addState('Converting completed', this.downloadDerivative.bind(this));
       this.addState('Download converted file', this.downloadDerivative.bind(this));
 
-      this.addState('Converted', placeholerFct);
+      this.addState('Converted', convertionFinished);
     }
   }
 
@@ -196,6 +202,9 @@ export default class SpinalForgeSystem extends spinalProcess {
     } catch (e) {
       console.error(e);
       model.state.set(getState('Failed'));
+    } finally {
+      // JOB DONE
+      console.log('convertionFinished');
     }
   }
 
@@ -250,13 +259,17 @@ export default class SpinalForgeSystem extends spinalProcess {
     }
   }
 
-  onchange() {
+  async onchange() {
     if (
       typeof this.fileVersionModel.state === 'undefined' ||
-      this.fileVersionModel.state.get() === 0
+      this.fileVersionModel.state.get() === 0 ||  // 'Inital'
+      this.fileVersionModel.state.get() === 10 || // 'Converted'
+      this.fileVersionModel.state.get() === 11    // 'Failed'
     ) {
+      if (this.classReady === true) queueJobHandle.finishedJob(this.uid);
       return;
     }
+    await queueJobHandle.waitJob(this.uid);
     this.init();
     const modelState = this.fileVersionModel.state.get();
     const stateLabel = getStateLabel(modelState);
@@ -269,7 +282,7 @@ export default class SpinalForgeSystem extends spinalProcess {
     }
   }
 }
-function placeholerFct() {
-  console.log('placeholer');
+function convertionFinished() {
+  // console.log('convertionFinished');
   return Promise.resolve();
 }

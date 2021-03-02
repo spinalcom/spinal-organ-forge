@@ -10,6 +10,9 @@ declare type StateFunc = {
     func: () => Promise<void>;
 };
 export default class SpinalForgeSystem extends spinalProcess {
+    private static uidCounter;
+    uid: any;
+    number: any;
     fileVersionModel: FileVersionModel;
     classReady: boolean;
     filename: string;
