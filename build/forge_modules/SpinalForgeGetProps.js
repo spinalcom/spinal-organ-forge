@@ -64,7 +64,7 @@ function get3D(metadata) {
 function wait(milsecond) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            resolve();
+            resolve(undefined);
         }, milsecond);
     });
 }
@@ -84,7 +84,7 @@ function spinalForgeGetProps(spinalForgeAuth, urn, bucketKey) {
             }
             else {
                 const rPath = path.resolve('viewerForgeFiles', bucketKey, 'propsList.json');
-                fs_1.writeFileSync(rPath, JSON.stringify(props));
+                (0, fs_1.writeFileSync)(rPath, JSON.stringify(props));
                 return props;
             }
         }

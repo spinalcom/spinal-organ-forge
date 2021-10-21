@@ -23,6 +23,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.queueJobHandle = exports.QueueJobHandle = void 0;
 const q = require('q');
 class QueueJobHandle {
     constructor() {

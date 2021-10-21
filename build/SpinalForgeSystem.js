@@ -131,7 +131,15 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
                 model.mod_attr('items', []);
             }
             try {
-                const viewables = yield this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
+                const { viewables, aecPath } = yield this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
+                if (aecPath) {
+                    if (model.aecPath) {
+                        model.aecPath.set(aecPath);
+                    }
+                    else {
+                        model.mod_attr("aecPath", aecPath);
+                    }
+                }
                 model.items.clear();
                 for (let i = 0; i < viewables.length; i += 1) {
                     const item = {
@@ -145,11 +153,11 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
                     model.items.push(new spinal_core_connectorjs_type_1.Model(item));
                 }
                 // await SpinalForgeGetProps(this.spinalForgeAuth, this.urn, this.bucketKey);
-                model.state.set(fileVersionState_1.getState('Converted'));
+                model.state.set((0, fileVersionState_1.getState)('Converted'));
             }
             catch (e) {
                 console.error(e);
-                model.state.set(fileVersionState_1.getState('Failed'));
+                model.state.set((0, fileVersionState_1.getState)('Failed'));
             }
             finally {
                 // JOB DONE
@@ -161,14 +169,14 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
         if (this.urn === '') {
             this.urn = this.fileVersionModel.info.urn.get();
         }
-        this.fileVersionModel.state.set(fileVersionState_1.getState('Converting'));
+        this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Converting'));
         return this.spinalForgeWaitTranslate
             .waitTranslate(this.urn)
             .then(() => {
-            this.fileVersionModel.state.set(fileVersionState_1.getState('Converting completed'));
+            this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Converting completed'));
         }, (e) => {
             console.error(e);
-            this.fileVersionModel.state.set(fileVersionState_1.getState('Failed'));
+            this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
         }, (progress) => {
             console.log(`[${this.filename}] progress => ${progress}`);
             this.fileVersionModel.info.translation.set(parseInt(progress, 10));
@@ -179,37 +187,37 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
             try {
                 this.urn = yield this.spinalForgeTranslate.translateInForge();
                 this.fileVersionModel.info.urn.set(this.urn);
-                this.fileVersionModel.state.set(fileVersionState_1.getState('In queue for conversion'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('In queue for conversion'));
             }
             catch (e) {
                 console.error(e);
-                this.fileVersionModel.state.set(fileVersionState_1.getState('Failed'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
             }
         });
     }
     uploadFileToForge() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this.fileVersionModel.state.set(fileVersionState_1.getState('Uploading file to Forge'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Uploading file to Forge'));
                 yield this.spinalForgeUpload.uploadToForge();
-                this.fileVersionModel.state.set(fileVersionState_1.getState('Upload file to Forge completed'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Upload file to Forge completed'));
             }
             catch (e) {
                 console.error(e);
-                this.fileVersionModel.state.set(fileVersionState_1.getState('Failed'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
             }
         });
     }
     downloadFile() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this.fileVersionModel.state.set(fileVersionState_1.getState('File downloading to Organ'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File downloading to Organ'));
                 yield this.spinalForgeFile.downloadFile();
-                this.fileVersionModel.state.set(fileVersionState_1.getState('File download to Organ completed'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File download to Organ completed'));
             }
             catch (e) {
                 console.error(e);
-                this.fileVersionModel.state.set(fileVersionState_1.getState('Failed'));
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
             }
         });
     }
@@ -227,7 +235,7 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
             yield QueueJobHandle_1.queueJobHandle.waitJob(this.uid);
             this.init();
             const modelState = this.fileVersionModel.state.get();
-            const stateLabel = fileVersionState_1.getStateLabel(modelState);
+            const stateLabel = (0, fileVersionState_1.getStateLabel)(modelState);
             console.log(`[${this.filename}] (${modelState}) state => ${stateLabel}`);
             for (const stateJob of this.stateFunc) {
                 if (stateJob.state === stateLabel) {

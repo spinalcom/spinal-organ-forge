@@ -22,18 +22,16 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-const forgeSDK = require('forge-apis');
+import forgeSDK = require('forge-apis');
 const bucketsApi = new forgeSDK.BucketsApi();
 type OAuthToken = any;
 
 export default class SpinalForgeAuth {
-  oAuth2TwoLegged: any;
-  loggedIn: boolean;
+  oAuth2TwoLegged: forgeSDK.AuthClientTwoLegged = null;
+  loggedIn: boolean = false;
   bucketKey: string;
 
   constructor(BUCKET_KEY) {
-    this.oAuth2TwoLegged = 0;
-    this.loggedIn = false;
     this.bucketKey = BUCKET_KEY;
   }
 

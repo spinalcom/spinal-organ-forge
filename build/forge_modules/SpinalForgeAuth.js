@@ -32,11 +32,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const forgeSDK = require('forge-apis');
+const forgeSDK = require("forge-apis");
 const bucketsApi = new forgeSDK.BucketsApi();
 class SpinalForgeAuth {
     constructor(BUCKET_KEY) {
-        this.oAuth2TwoLegged = 0;
+        this.oAuth2TwoLegged = null;
         this.loggedIn = false;
         this.bucketKey = BUCKET_KEY;
     }

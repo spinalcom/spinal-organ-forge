@@ -35,6 +35,7 @@ type FlatItem = {
   basePath?: string,
   localPath?: string,
   fileName?: string,
+  role?: string,
   name?: string,
   urn?: string,
   guid?: string,
@@ -59,6 +60,7 @@ export default function spinalForgeDownloadDerivative(
   this._viewables = []; // { path: '', name: '' }
   this._errors = []; // ''
   this._thumbnail = [];
+  this.aecPath = ""
   function getManifest(oAuth, urn) {
     console.log('**** getManifest');
 
@@ -144,6 +146,7 @@ export default function spinalForgeDownloadDerivative(
           fileName: item.files[j],
         };
         if (item.name) flatItem.name = item.name;
+        if (item.role) flatItem.role = item.role;
         if (item.urn) {
           flatItem.urn = item.urn;
           flatItem.guid = item.guid;
@@ -208,6 +211,9 @@ export default function spinalForgeDownloadDerivative(
           downloadComplete,
         );
       }
+      if (fi.role === "Autodesk.AEC.ModelData") {
+        _self.aecPath = `/html/${path.normalize(fi.localPath + fi.fileName)}`
+      }
       if (
         (fi.mime === 'application/autodesk-svf' ||
           fi.mime === 'application/autodesk-f2d') &&
@@ -244,8 +250,8 @@ export default function spinalForgeDownloadDerivative(
       .callApi(
         '/derivativeservice/v2/thumbnails/{urn}',
         'GET', {
-          urn,
-        },
+        urn,
+      },
         queryParams,
         {},
         {},
@@ -417,6 +423,7 @@ export default function spinalForgeDownloadDerivative(
       node.role === 'Autodesk.CloudPlatform.PropertyDatabase' ||
       node.role === 'Autodesk.CloudPlatform.DesignDescription' ||
       node.role === 'Autodesk.CloudPlatform.IndexableContent' ||
+      node.role === 'Autodesk.AEC.ModelData' ||
       node.role === 'graphics' ||
       node.role === 'raas' ||
       node.role === 'pdf' ||
@@ -426,6 +433,7 @@ export default function spinalForgeDownloadDerivative(
     ) {
       const item: FlatItem = {
         mime: node.mime,
+        role: node.role
       };
       extractPathsFromGraphicsUrn(node.urn, item);
       node.urn = `$file$/${item.localPath + item.rootFileName}`;
@@ -597,12 +605,13 @@ export default function spinalForgeDownloadDerivative(
           }
         }
         console.log('bubule._viewables', bubule._viewables);
+        console.log('bubule.aecPath', bubule.aecPath);
         // model._children.clear();
         // for (var i = 0; i < bubule._viewables.length; i++) {
         //   model.add_child(new ForgeFileDerivativesItem(bubule._viewables[i]));
         // }
         // model.state.set("Export completed");
-        return bubule._viewables;
+        return { viewables: bubule._viewables, aecPath: bubule.aecPath };
         // return (bubule._viewables)
       });
     // .catch(function (err) {

@@ -69,7 +69,7 @@ export default class SpinalForgeUpload {
           reject(err);
         } else {
           return objectsApi.uploadObject(this.bucketKey, this.filename, data.length,
-                                         data, {}, oAuth, oAuth.getCredentials(),
+            data, {}, oAuth, oAuth.getCredentials(),
           ).then(
             (res) => {
               resolve(res.body);
@@ -102,7 +102,7 @@ export default class SpinalForgeUpload {
 
       const chunksMap = Array.from({
         length: nbChunks,
-      },                           (e, i) => i);
+      }, (e, i) => i);
       // generates uniques session ID
       const sessionId = this.guid();
       // prepare the upload tasks
@@ -141,12 +141,12 @@ export default class SpinalForgeUpload {
             });
           }
           callback();
-        },              (err) => {
+        }, (err) => {
           console.log('error');
           console.log(err);
           callback(err);
         });
-      },        (err) => {
+      }, (err) => {
         if (err) {
           return reject(err);
         }
@@ -186,9 +186,9 @@ export default class SpinalForgeUpload {
         return this.uploadObjectChunked(oAuth, this.filename, {
           size: getFilesizeInBytes(filePath),
           path: filePath,
-        },                              opts);
+        }, opts);
       })
-      .then(() => {
+      .then((): Promise<void> => {
         return new Promise((resolve) => {
           const filePath = path.resolve(OUT_DIR, this.filename);
           fs.unlink(filePath, () => {

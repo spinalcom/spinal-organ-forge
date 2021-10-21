@@ -55,17 +55,17 @@ function get3D(metadata) {
   }
 }
 
-function wait(milsecond) {
+function wait(milsecond): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve();
-    },         milsecond);
+      resolve(undefined);
+    }, milsecond);
   });
 }
 
 export default async function spinalForgeGetProps(spinalForgeAuth: any,
-                                                  urn: string,
-                                                  bucketKey: string) {
+  urn: string,
+  bucketKey: string) {
   console.log('START SpinalForgeGetProps');
 
   const oAuth = await spinalForgeAuth.auth_and_getBucket();

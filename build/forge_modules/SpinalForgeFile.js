@@ -76,7 +76,7 @@ class SpinalForgeFile {
     downloadFile() {
         console.log(`Starting to Download the File : ${this.filename}`);
         mkdirp.sync(OUT_DIR);
-        return loadModelPtr_1.loadModelPtr(this.fileVersionModel.ptr).then((path) => {
+        return (0, loadModelPtr_1.loadModelPtr)(this.fileVersionModel.ptr).then((path) => {
             return new Promise((resolve, reject) => {
                 fs.unlink(this.filename, () => {
                     let url;

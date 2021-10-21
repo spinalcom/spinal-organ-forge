@@ -184,7 +184,14 @@ export default class SpinalForgeSystem extends spinalProcess {
       model.mod_attr('items', []);
     }
     try {
-      const viewables = await this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
+      const { viewables, aecPath } = await this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
+      if (aecPath) {
+        if (model.aecPath) {
+          model.aecPath.set(aecPath)
+        } else {
+          model.mod_attr("aecPath", aecPath)
+        }
+      }
       model.items.clear();
       for (let i = 0; i < viewables.length; i += 1) {
         const item: ViewableItem = {
@@ -217,10 +224,10 @@ export default class SpinalForgeSystem extends spinalProcess {
       .waitTranslate(this.urn)
       .then(() => { // resolve
         this.fileVersionModel.state.set(getState('Converting completed'));
-      },    (e) => { // reject
+      }, (e) => { // reject
         console.error(e);
         this.fileVersionModel.state.set(getState('Failed'));
-      },    (progress) => { // progress
+      }, (progress) => { // progress
         console.log(`[${this.filename}] progress => ${progress}`);
         this.fileVersionModel.info.translation.set(parseInt(progress, 10));
       });

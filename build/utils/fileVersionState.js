@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getState = exports.getStateLabel = void 0;
 /*
  * Copyright 2018 SpinalCom - www.spinalcom.com
  *
