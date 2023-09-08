@@ -103,7 +103,7 @@ class SpinalForgeUpload {
                 };
             });
             let progress = 0;
-            (0, async_1.eachLimit)(uploadTasks, opts.concurrentUploads || 3, (task, callback) => {
+            async_1.eachLimit(uploadTasks, opts.concurrentUploads || 3, (task, callback) => {
                 task.run().then((res) => {
                     if (opts.onProgress) {
                         progress += 100.0 / nbChunks;

@@ -84,7 +84,7 @@ function spinalForgeGetProps(spinalForgeAuth, urn, bucketKey) {
             }
             else {
                 const rPath = path.resolve('viewerForgeFiles', bucketKey, 'propsList.json');
-                (0, fs_1.writeFileSync)(rPath, JSON.stringify(props));
+                fs_1.writeFileSync(rPath, JSON.stringify(props));
                 return props;
             }
         }

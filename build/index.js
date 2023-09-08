@@ -28,7 +28,7 @@ const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
 const SpinalForgeSystem_1 = require("./SpinalForgeSystem");
 const Q = require('q');
 const spinal_model_file_version_model_1 = require("spinal-model-file_version_model");
-console.log(spinal_model_file_version_model_1.FileVersionModel);
+spinal_model_file_version_model_1.FileVersionModel;
 if (!process.env.CLIENT_ID) {
     console.log('default config');
     process.env.SPINAL_USER_ID = '168';
@@ -48,18 +48,26 @@ const errorConnect = function (err) {
 };
 const waitModelReady = (file) => {
     const deferred = Q.defer();
-    const waitModelReadyLoop = (f, defer) => {
+    const interval = setInterval(() => {
         if (spinal_core_connectorjs_type_1.FileSystem._sig_server === false) {
-            setTimeout(() => {
-                defer.resolve(waitModelReadyLoop(f, defer));
-            }, 100);
+            return false;
         }
-        else {
-            defer.resolve(f);
-        }
-        return defer.promise;
-    };
-    return waitModelReadyLoop(file, deferred);
+        clearInterval(interval);
+        deferred.resolve(file);
+        return true;
+    }, 100);
+    return deferred.promise;
+    // const waitModelReadyLoop = (f: FileVersionModel, defer) => {
+    //   if (FileSystem._sig_server === false) {
+    //     setTimeout(() => {
+    //       defer.resolve(waitModelReadyLoop(f, defer));
+    //     }, 100);
+    //   } else {
+    //     defer.resolve(f);
+    //   }
+    //   return defer.promise;
+    // };
+    // return waitModelReadyLoop(file, deferred);
 };
 const callbackSuccess = (fileVersionModel) => {
     waitModelReady(fileVersionModel).then(() => {

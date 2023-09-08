@@ -22,4 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
+var dotenv = require('dotenv');
+dotenv.config();
+
 require('./build/index.js');
