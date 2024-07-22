@@ -103,7 +103,7 @@ class SpinalForgeUpload {
                 };
             });
             let progress = 0;
-            async_1.eachLimit(uploadTasks, opts.concurrentUploads || 3, (task, callback) => {
+            (0, async_1.eachLimit)(uploadTasks, opts.concurrentUploads || 3, (task, callback) => {
                 task.run().then((res) => {
                     if (opts.onProgress) {
                         progress += 100.0 / nbChunks;
@@ -138,7 +138,7 @@ class SpinalForgeUpload {
             .then((oAuth) => {
             // return this.uploadFile(oAuth);
             const opts = {
-                chunkSize: 5 * 1024 * 1024,
+                chunkSize: 5 * 1024 * 1024, // 5MB chunks
                 concurrentUploads: 3,
                 onProgress: (info) => {
                     console.log('upload info:', info);

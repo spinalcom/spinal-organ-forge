@@ -1,5 +1,5 @@
 import forgeSDK = require('forge-apis');
-declare type OAuthToken = any;
+type OAuthToken = any;
 export default class SpinalForgeAuth {
     oAuth2TwoLegged: forgeSDK.AuthClientTwoLegged;
     loggedIn: boolean;

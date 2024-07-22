@@ -38,7 +38,6 @@ if (!process.env.CLIENT_ID) {
 }
 const connectOpt = `http://${process.env.SPINAL_USER_ID}:${process.env.SPINAL_PASSWORD}@${process.env.SPINALHUB_IP}:${process.env.SPINALHUB_PORT}/`;
 const conn = spinal_core_connectorjs_type_1.spinalCore.connect(connectOpt);
-// FileSystem._disp = true;
 const errorConnect = function (err) {
     if (!err)
         console.log('Error Connect.');
@@ -57,17 +56,6 @@ const waitModelReady = (file) => {
         return true;
     }, 100);
     return deferred.promise;
-    // const waitModelReadyLoop = (f: FileVersionModel, defer) => {
-    //   if (FileSystem._sig_server === false) {
-    //     setTimeout(() => {
-    //       defer.resolve(waitModelReadyLoop(f, defer));
-    //     }, 100);
-    //   } else {
-    //     defer.resolve(f);
-    //   }
-    //   return defer.promise;
-    // };
-    // return waitModelReadyLoop(file, deferred);
 };
 const callbackSuccess = (fileVersionModel) => {
     waitModelReady(fileVersionModel).then(() => {

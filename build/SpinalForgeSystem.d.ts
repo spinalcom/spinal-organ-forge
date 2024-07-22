@@ -5,7 +5,7 @@ import SpinalForgeTranslate from './forge_modules/SpinalForgeTranslate';
 import SpinalForgeWaitTranslate from './forge_modules/SpinalForgeWaitTranslate';
 import { Process as spinalProcess } from 'spinal-core-connectorjs_type';
 import { FileVersionModel } from 'spinal-model-file_version_model';
-declare type StateFunc = {
+type StateFunc = {
     state: string;
     func: () => Promise<void>;
 };

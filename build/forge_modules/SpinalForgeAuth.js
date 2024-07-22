@@ -59,8 +59,8 @@ class SpinalForgeAuth {
                 return yield this.getBucketDetails(bucketKey);
             }
             catch (err) {
-                console.log(err);
-                if (err.statusCode === 404) {
+                if (err.message = 'Request failed with status code 404') {
+                    console.log("bucket not found !");
                     try {
                         return yield this.createBucket(bucketKey);
                     }
