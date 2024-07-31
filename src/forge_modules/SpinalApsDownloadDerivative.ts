@@ -29,18 +29,16 @@ import { SdkManager, SdkManagerBuilder } from '@aps_sdk/autodesk-sdkmanager';
 import {
   ManifestDerivativesChildren,
   ModelDerivativeClient,
-  Manifest
+  Manifest,
+  Region
 } from '@aps_sdk/model-derivative';
 import { Scopes } from '@aps_sdk/authentication';
-import {
-  SvfReader,
-} from 'svf-utils';
 import { IDownloadDerivativeOutput } from "./IDownloadDerivativeOutput";
 import { IViewable } from './IViewable';
 import PQueue from 'p-queue';
-import { ISvfManifest, ISvfManifestAsset } from 'svf-utils/lib/svf/schema';
 import { spinalApsManager } from './SpinalApsManager';
-
+import * as Zip from 'adm-zip';
+import { ISvfManifest, ISvfManifestAsset } from './ISvfManifest';
 export interface IDownloadOptions {
   outputDir?: string;
   log?: (message: string) => void;
@@ -54,16 +52,6 @@ export interface SVFManifestDerivative {
   urn: string;
   mime: string;
 }
-
-// export interface ThumbnailManifestDerivative {
-//   guid: string;
-//   type: string;
-//   role: string;
-//   urn: string;
-//   resolution: [number, number];
-//   mime: string;
-//   status: string;
-// }
 
 export class SpinalApsDownloadDerivative {
   private sdkManager: SdkManager;
@@ -92,7 +80,9 @@ export class SpinalApsDownloadDerivative {
   private async _download(urn: string, context: IDownloadContext): Promise<IDownloadDerivativeOutput> {
     context.log(`Downloading derivative ${urn}`);
     const accessToken = await spinalApsManager.getToken([Scopes.ViewablesRead]);
-    const manifest = await this.modelDerivativeClient.getManifest(accessToken, urn);
+    const manifest = await this.modelDerivativeClient.getManifest(accessToken, urn,
+      { region: Region.Emea }
+    );
     this.debug_output_to_file(manifest, 'manifest.json');
     const urnDir = path.join(context.outputDir || '.', 'resources');
     const viewables: IViewable[] = [];
@@ -183,40 +173,49 @@ export class SpinalApsDownloadDerivative {
       const svf = await this._dlDerivativeFile(urn, encodeURI(derivativeUrn));
       const outputPath = path.join(outputDir, fileName);
       fse.writeFileSync(outputPath, new Uint8Array(svf));
-
       viewables.push({
         path: path.resolve('/html', outputDir, fileName),
         name: fileName,
       });
-
-      const reader = await SvfReader.FromDerivativeService(urn, guid, spinalApsManager.auth);
-      const manifest = await reader.getManifest();
+      const manifest = this.getSvfManifest(svf);
       for (let idxAsset = 0; idxAsset < manifest.assets.length; idxAsset++) {
         queue.add(this._dlDerivativeAssest.bind(this,
-          manifest.assets[idxAsset], context, idxDeriv, svfDerivatives, idxAsset, manifest, reader, outputDir));
+          urn, manifest.assets[idxAsset], context, idxDeriv, svfDerivatives, idxAsset, manifest, outputDir));
       }
     }
     await queue.onIdle();
   }
   //#endregion
 
+  getSvfManifest(svfBuffer: ArrayBuffer) {
+    const zip = new Zip(Buffer.from(svfBuffer));
+    const manifestEntry = zip.getEntry('manifest.json');
+    const manifest = JSON.parse(manifestEntry.getData().toString()) as ISvfManifest;
+    return manifest;
+  }
+
   // #region dlDerivativeAssest
   private async _dlDerivativeAssest(
+    urn: string,
     asset: ISvfManifestAsset,
     context: Required<IDownloadOptions>,
     idxDeriv: number, svfDerivatives: SVFManifestDerivative[],
     idxAsset: number,
     manifest: ISvfManifest,
-    reader: SvfReader,
     outputDir: string) {
     if (!asset.URI.startsWith('embed:')) {
+      const svfDerivative = svfDerivatives[idxDeriv];
+      const svfUrn = svfDerivative.urn;
       context.log(`viewable ${idxDeriv + 1}/${svfDerivatives.length} - Downloading asset ${idxAsset + 1}/${manifest.assets.length} ${asset.URI}`);
       try {
-        const assetData = await reader.getAsset(asset.URI);
+        // const assetData = await reader.getAsset(asset.URI);
         const assetPath = path.join(outputDir, asset.URI);
+        const baseUri = svfUrn.slice(0, svfUrn.lastIndexOf('/'));
         const assetFolder = path.dirname(assetPath);
+        const encodedUrn = encodeURI(path.normalize(path.join(baseUri, asset.URI)));
+        const assetData = await this._dlDerivativeFile(urn, encodedUrn, false);
         fse.ensureDirSync(assetFolder);
-        fse.writeFileSync(assetPath, assetData);
+        fse.writeFileSync(assetPath, Buffer.from(assetData));
       } catch (err) {
         if (context.failOnMissingAssets) {
           throw err;
@@ -247,7 +246,8 @@ export class SpinalApsDownloadDerivative {
   private async _dlDerivativeFile(urn: string, derivativeUrn: string, decompress: boolean = false): Promise<ArrayBuffer> {
     const accessToken = await spinalApsManager.getToken([Scopes.ViewablesRead]);
     try {
-      const downloadInfo = await this.modelDerivativeClient.getDerivativeUrl(accessToken, derivativeUrn, urn);
+      const downloadInfo = await this.modelDerivativeClient.getDerivativeUrl(accessToken, derivativeUrn, urn,
+        { region: Region.Emea });
       const response = await axios.get(downloadInfo.url as string, { responseType: 'arraybuffer', decompress });
       return response.data;
     } catch (error) {

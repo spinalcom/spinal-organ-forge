@@ -33,7 +33,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.spinalApsManager = exports.SpinalApsManager = void 0;
-const svf_utils_1 = require("svf-utils");
 const oss_1 = require("@aps_sdk/oss");
 const autodesk_sdkmanager_1 = require("@aps_sdk/autodesk-sdkmanager");
 const authentication_1 = require("@aps_sdk/authentication");
@@ -42,9 +41,8 @@ const config_1 = require("../config");
 class SpinalApsManager {
     // #region singleton
     constructor() {
-        this.auth = new svf_utils_1.TwoLeggedAuthenticationProvider(config_1.CLIENT_ID, config_1.CLIENT_SECRET);
         const sdk = autodesk_sdkmanager_1.SdkManagerBuilder.create().build();
-        // this.authenticationClient = new AuthenticationClient(sdk);
+        this.authenticationClient = new authentication_1.AuthenticationClient(sdk);
         this.ossClient = new oss_1.OssClient(sdk);
         this.modelDerivativeClient = new model_derivative_1.ModelDerivativeClient(sdk);
     }
@@ -54,7 +52,10 @@ class SpinalApsManager {
     // #endregion
     // #region getToken
     getToken(scopes) {
-        return this.auth.getToken(scopes);
+        return __awaiter(this, void 0, void 0, function* () {
+            const res = yield this.authenticationClient.getTwoLeggedToken(config_1.CLIENT_ID, config_1.CLIENT_SECRET, scopes);
+            return res.access_token;
+        });
     }
     // #endregion
     // #region getAuthAndCreateBucket
@@ -65,7 +66,7 @@ class SpinalApsManager {
                 authentication_1.Scopes.DataCreate, authentication_1.Scopes.DataWrite, authentication_1.Scopes.DataRead,
                 authentication_1.Scopes.BucketCreate, authentication_1.Scopes.BucketRead,
             ]);
-            this.ensureBucketExists(bucketKey, token);
+            yield this.ensureBucketExists(bucketKey, token);
             return token;
         });
     }

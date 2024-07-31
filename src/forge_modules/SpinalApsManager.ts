@@ -22,38 +22,33 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { TwoLeggedAuthenticationProvider } from 'svf-utils';
 import { OssClient, CreateBucketsPayloadPolicyKeyEnum, CreateBucketXAdsRegionEnum } from '@aps_sdk/oss';
 import { SdkManagerBuilder } from '@aps_sdk/autodesk-sdkmanager';
-import { Scopes } from '@aps_sdk/authentication';
+import { Scopes, AuthenticationClient } from '@aps_sdk/authentication';
 import { ModelDerivativeClient } from '@aps_sdk/model-derivative';
 import { CLIENT_ID, CLIENT_SECRET } from '../config';
 
 export class SpinalApsManager {
-  public auth: TwoLeggedAuthenticationProvider;
   ossClient: OssClient;
   modelDerivativeClient: ModelDerivativeClient;
+  authenticationClient: AuthenticationClient;
 
   // #region singleton
   private constructor() {
-    this.auth = new TwoLeggedAuthenticationProvider(
-      CLIENT_ID,
-      CLIENT_SECRET
-    )
     const sdk = SdkManagerBuilder.create().build();
-    // this.authenticationClient = new AuthenticationClient(sdk);
+    this.authenticationClient = new AuthenticationClient(sdk);
     this.ossClient = new OssClient(sdk);
     this.modelDerivativeClient = new ModelDerivativeClient(sdk);
   }
-
   static getInstance(): SpinalApsManager {
     return new SpinalApsManager();
   }
   // #endregion
 
   // #region getToken
-  getToken(scopes: Scopes[]): Promise<string> {
-    return this.auth.getToken(scopes)
+  async getToken(scopes: Scopes[]): Promise<string> {
+    const res = await this.authenticationClient.getTwoLeggedToken(CLIENT_ID, CLIENT_SECRET, scopes);
+    return res.access_token;
   }
   // #endregion
 
@@ -64,7 +59,7 @@ export class SpinalApsManager {
       Scopes.DataCreate, Scopes.DataWrite, Scopes.DataRead,
       Scopes.BucketCreate, Scopes.BucketRead,
     ])
-    this.ensureBucketExists(bucketKey, token);
+    await this.ensureBucketExists(bucketKey, token);
     return token;
   }
   // #endregion
@@ -85,7 +80,6 @@ export class SpinalApsManager {
     }
   }
   // #endregion
-
 }
 
 export const spinalApsManager = SpinalApsManager.getInstance();

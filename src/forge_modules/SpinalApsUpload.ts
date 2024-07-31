@@ -24,6 +24,7 @@
 
 import path = require('path');
 import { spinalApsManager } from './SpinalApsManager';
+import { unlinkSync } from 'fs-extra';
 const OUT_DIR = path.resolve(__dirname, '..', '..', 'tmp');
 
 export default class SpinalApsUpload {
@@ -34,16 +35,16 @@ export default class SpinalApsUpload {
 
   // #region uploadToAps
   async uploadToAps() {
-    console.log('Starting to uplaod the file [%s] to aps.', this.filename);
+    console.log('Starting to upload the file [%s] to aps.', this.filename);
     const accessToken = await spinalApsManager.getAuthAndCreateBucket(this.bucketKey);
     const filepath = path.resolve(OUT_DIR, this.filename);
-
-    await spinalApsManager.ossClient.upload(this.bucketKey, this.filename, filepath, accessToken, null, null, null, {
-      onProgress(percentCompleted) {
-        console.log('Upload file [%s] progress: %d', this.filename, percentCompleted);
-      },
-    });
-    console.log('Uplaod file [%s] to aps done.', this.filename);
+    await spinalApsManager.ossClient.upload(this.bucketKey, this.filename, filepath, accessToken);
+    try {
+      unlinkSync(filepath);
+    } catch (e) {
+      console.error(e);
+    }
+    console.log('Upload file [%s] to aps done.', this.filename);
   }
   // #endregion
 }

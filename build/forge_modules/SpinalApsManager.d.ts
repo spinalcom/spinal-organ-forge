@@ -1,11 +1,10 @@
-import { TwoLeggedAuthenticationProvider } from 'svf-utils';
 import { OssClient } from '@aps_sdk/oss';
-import { Scopes } from '@aps_sdk/authentication';
+import { Scopes, AuthenticationClient } from '@aps_sdk/authentication';
 import { ModelDerivativeClient } from '@aps_sdk/model-derivative';
 export declare class SpinalApsManager {
-    auth: TwoLeggedAuthenticationProvider;
     ossClient: OssClient;
     modelDerivativeClient: ModelDerivativeClient;
+    authenticationClient: AuthenticationClient;
     private constructor();
     static getInstance(): SpinalApsManager;
     getToken(scopes: Scopes[]): Promise<string>;

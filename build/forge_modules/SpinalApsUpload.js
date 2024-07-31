@@ -34,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
 const SpinalApsManager_1 = require("./SpinalApsManager");
+const fs_extra_1 = require("fs-extra");
 const OUT_DIR = path.resolve(__dirname, '..', '..', 'tmp');
 class SpinalApsUpload {
     // #region constructor
@@ -45,15 +46,17 @@ class SpinalApsUpload {
     // #region uploadToAps
     uploadToAps() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('Starting to uplaod the file [%s] to aps.', this.filename);
+            console.log('Starting to upload the file [%s] to aps.', this.filename);
             const accessToken = yield SpinalApsManager_1.spinalApsManager.getAuthAndCreateBucket(this.bucketKey);
             const filepath = path.resolve(OUT_DIR, this.filename);
-            yield SpinalApsManager_1.spinalApsManager.ossClient.upload(this.bucketKey, this.filename, filepath, accessToken, null, null, null, {
-                onProgress(percentCompleted) {
-                    console.log('Upload file [%s] progress: %d', this.filename, percentCompleted);
-                },
-            });
-            console.log('Uplaod file [%s] to aps done.', this.filename);
+            yield SpinalApsManager_1.spinalApsManager.ossClient.upload(this.bucketKey, this.filename, filepath, accessToken);
+            try {
+                (0, fs_extra_1.unlinkSync)(filepath);
+            }
+            catch (e) {
+                console.error(e);
+            }
+            console.log('Upload file [%s] to aps done.', this.filename);
         });
     }
 }

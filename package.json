@@ -8,6 +8,7 @@
     "@aps_sdk/autodesk-sdkmanager": "^0.0.7-beta.1",
     "@aps_sdk/model-derivative": "^0.1.0-beta.1",
     "@aps_sdk/oss": "^0.1.0-beta.1",
+    "adm-zip": "^0.5.14",
     "axios": "^1.7.2",
     "base64-url": "^2.2.1",
     "dotenv": "^16.0.3",
@@ -15,10 +16,10 @@
     "p-queue": "^6.6.2",
     "q": "^1.5.1",
     "spinal-core-connectorjs": "git+https://github.com/spinalcom/spinal-core-connectorjs.git",
-    "spinal-model-file_version_model": "git+https://github.com/spinalcom/spinal-model-file_version_model.git",
-    "svf-utils": "^5.0.3"
+    "spinal-model-file_version_model": "git+https://github.com/spinalcom/spinal-model-file_version_model.git"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.5",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.14.11",
     "@types/q": "^1.5.8",

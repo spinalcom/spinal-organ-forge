@@ -1,4 +1,5 @@
 import { IDownloadDerivativeOutput } from "./IDownloadDerivativeOutput";
+import { ISvfManifest } from './ISvfManifest';
 export interface IDownloadOptions {
     outputDir?: string;
     log?: (message: string) => void;
@@ -22,6 +23,7 @@ export declare class SpinalApsDownloadDerivative {
     debug_output_to_file(output: any, fileName: string): void;
     private _collectDerivatives;
     private _dlSvfDerivatives;
+    getSvfManifest(svfBuffer: ArrayBuffer): ISvfManifest;
     private _dlDerivativeAssest;
     private _dlAec;
     private _dlDerivativeFile;

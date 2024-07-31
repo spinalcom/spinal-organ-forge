@@ -54,7 +54,7 @@ export default class SpinalApsTranslateJob {
 
   // #region getObjectIdFile
   private async getObjectIdFile(accessToken: string) {
-    const res = await spinalApsManager.ossClient.getObjects(this.bucketKey, accessToken, {
+    const res = await spinalApsManager.ossClient.getObjects(accessToken, this.bucketKey, {
       limit: 20
     });
     for (const obj of res.items) {

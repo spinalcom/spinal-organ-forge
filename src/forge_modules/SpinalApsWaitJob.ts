@@ -24,6 +24,7 @@
 
 import { Scopes } from "@aps_sdk/authentication";
 import { spinalApsManager } from "./SpinalApsManager";
+import { Region } from "@aps_sdk/model-derivative";
 
 export default class SpinalApsWaitJob {
 
@@ -37,7 +38,9 @@ export default class SpinalApsWaitJob {
       const access_token = await spinalApsManager.getToken([
         Scopes.DataRead, Scopes.BucketRead,
       ])
-      const manifest = await spinalApsManager.modelDerivativeClient.getManifest(access_token, urn);
+      const manifest = await spinalApsManager.modelDerivativeClient.getManifest(access_token, urn, {
+        region: Region.Emea
+      });
 
       if (manifest.status === 'success' && manifest.progress === 'complete') {
         console.log('Translating completed !');

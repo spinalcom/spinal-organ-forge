@@ -12,3 +12,5 @@ viewerForgeFiles
 bkp
 test
 .env*
+tmp
+debug

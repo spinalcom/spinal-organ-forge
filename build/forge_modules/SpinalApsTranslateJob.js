@@ -67,7 +67,7 @@ class SpinalApsTranslateJob {
     // #region getObjectIdFile
     getObjectIdFile(accessToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const res = yield SpinalApsManager_1.spinalApsManager.ossClient.getObjects(this.bucketKey, accessToken, {
+            const res = yield SpinalApsManager_1.spinalApsManager.ossClient.getObjects(accessToken, this.bucketKey, {
                 limit: 20
             });
             for (const obj of res.items) {

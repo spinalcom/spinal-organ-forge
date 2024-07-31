@@ -23,18 +23,18 @@
  */
 
 export const fileVersionState = [
-  'Inital',
-  'Send tranlation command to organ',
-  'File downloading to Organ',
-  'File download to Organ completed',
-  'Uploading file to Forge',
-  'Upload file to Forge completed',
-  'In queue for conversion',
-  'Converting',
-  'Converting completed',
-  'Download converted file',
-  'Converted',
-  'Failed',
+  'Inital', // 0
+  'Send tranlation command to organ', // 1
+  'File downloading to Organ', // 2
+  'File download to Organ completed', // 3
+  'Uploading file to Forge', // 4
+  'Upload file to Forge completed', // 5
+  'In queue for conversion', // 6
+  'Converting', // 7
+  'Converting completed', // 8
+  'Download converted file', // 9
+  'Converted', // 10
+  'Failed', // 11
 ] as const;
 export default fileVersionState;
 

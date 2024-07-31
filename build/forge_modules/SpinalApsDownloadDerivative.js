@@ -39,18 +39,9 @@ const fse = require("fs-extra");
 const autodesk_sdkmanager_1 = require("@aps_sdk/autodesk-sdkmanager");
 const model_derivative_1 = require("@aps_sdk/model-derivative");
 const authentication_1 = require("@aps_sdk/authentication");
-const svf_utils_1 = require("svf-utils");
 const p_queue_1 = require("p-queue");
 const SpinalApsManager_1 = require("./SpinalApsManager");
-// export interface ThumbnailManifestDerivative {
-//   guid: string;
-//   type: string;
-//   role: string;
-//   urn: string;
-//   resolution: [number, number];
-//   mime: string;
-//   status: string;
-// }
+const Zip = require("adm-zip");
 class SpinalApsDownloadDerivative {
     // #region contructor
     constructor(bucketKey) {
@@ -75,7 +66,7 @@ class SpinalApsDownloadDerivative {
         return __awaiter(this, void 0, void 0, function* () {
             context.log(`Downloading derivative ${urn}`);
             const accessToken = yield SpinalApsManager_1.spinalApsManager.getToken([authentication_1.Scopes.ViewablesRead]);
-            const manifest = yield this.modelDerivativeClient.getManifest(accessToken, urn);
+            const manifest = yield this.modelDerivativeClient.getManifest(accessToken, urn, { region: model_derivative_1.Region.Emea });
             this.debug_output_to_file(manifest, 'manifest.json');
             const urnDir = path.join(context.outputDir || '.', 'resources');
             const viewables = [];
@@ -156,27 +147,37 @@ class SpinalApsDownloadDerivative {
                     path: path.resolve('/html', outputDir, fileName),
                     name: fileName,
                 });
-                const reader = yield svf_utils_1.SvfReader.FromDerivativeService(urn, guid, SpinalApsManager_1.spinalApsManager.auth);
-                const manifest = yield reader.getManifest();
+                const manifest = this.getSvfManifest(svf);
                 for (let idxAsset = 0; idxAsset < manifest.assets.length; idxAsset++) {
-                    queue.add(this._dlDerivativeAssest.bind(this, manifest.assets[idxAsset], context, idxDeriv, svfDerivatives, idxAsset, manifest, reader, outputDir));
+                    queue.add(this._dlDerivativeAssest.bind(this, urn, manifest.assets[idxAsset], context, idxDeriv, svfDerivatives, idxAsset, manifest, outputDir));
                 }
             }
             yield queue.onIdle();
         });
     }
     //#endregion
+    getSvfManifest(svfBuffer) {
+        const zip = new Zip(Buffer.from(svfBuffer));
+        const manifestEntry = zip.getEntry('manifest.json');
+        const manifest = JSON.parse(manifestEntry.getData().toString());
+        return manifest;
+    }
     // #region dlDerivativeAssest
-    _dlDerivativeAssest(asset, context, idxDeriv, svfDerivatives, idxAsset, manifest, reader, outputDir) {
+    _dlDerivativeAssest(urn, asset, context, idxDeriv, svfDerivatives, idxAsset, manifest, outputDir) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!asset.URI.startsWith('embed:')) {
+                const svfDerivative = svfDerivatives[idxDeriv];
+                const svfUrn = svfDerivative.urn;
                 context.log(`viewable ${idxDeriv + 1}/${svfDerivatives.length} - Downloading asset ${idxAsset + 1}/${manifest.assets.length} ${asset.URI}`);
                 try {
-                    const assetData = yield reader.getAsset(asset.URI);
+                    // const assetData = await reader.getAsset(asset.URI);
                     const assetPath = path.join(outputDir, asset.URI);
+                    const baseUri = svfUrn.slice(0, svfUrn.lastIndexOf('/'));
                     const assetFolder = path.dirname(assetPath);
+                    const encodedUrn = encodeURI(path.normalize(path.join(baseUri, asset.URI)));
+                    const assetData = yield this._dlDerivativeFile(urn, encodedUrn, false);
                     fse.ensureDirSync(assetFolder);
-                    fse.writeFileSync(assetPath, assetData);
+                    fse.writeFileSync(assetPath, Buffer.from(assetData));
                 }
                 catch (err) {
                     if (context.failOnMissingAssets) {
@@ -208,11 +209,11 @@ class SpinalApsDownloadDerivative {
     }
     // #endregion
     // #region dlDerivativeFile
-    _dlDerivativeFile(urn, derivativeUrn, decompress = false) {
-        return __awaiter(this, void 0, void 0, function* () {
+    _dlDerivativeFile(urn_1, derivativeUrn_1) {
+        return __awaiter(this, arguments, void 0, function* (urn, derivativeUrn, decompress = false) {
             const accessToken = yield SpinalApsManager_1.spinalApsManager.getToken([authentication_1.Scopes.ViewablesRead]);
             try {
-                const downloadInfo = yield this.modelDerivativeClient.getDerivativeUrl(accessToken, derivativeUrn, urn);
+                const downloadInfo = yield this.modelDerivativeClient.getDerivativeUrl(accessToken, derivativeUrn, urn, { region: model_derivative_1.Region.Emea });
                 const response = yield axios_1.default.get(downloadInfo.url, { responseType: 'arraybuffer', decompress });
                 return response.data;
             }

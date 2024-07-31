@@ -34,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const authentication_1 = require("@aps_sdk/authentication");
 const SpinalApsManager_1 = require("./SpinalApsManager");
+const model_derivative_1 = require("@aps_sdk/model-derivative");
 class SpinalApsWaitJob {
     constructor() { }
     // #region waitTranslate
@@ -45,7 +46,9 @@ class SpinalApsWaitJob {
                 const access_token = yield SpinalApsManager_1.spinalApsManager.getToken([
                     authentication_1.Scopes.DataRead, authentication_1.Scopes.BucketRead,
                 ]);
-                const manifest = yield SpinalApsManager_1.spinalApsManager.modelDerivativeClient.getManifest(access_token, urn);
+                const manifest = yield SpinalApsManager_1.spinalApsManager.modelDerivativeClient.getManifest(access_token, urn, {
+                    region: model_derivative_1.Region.Emea
+                });
                 if (manifest.status === 'success' && manifest.progress === 'complete') {
                     console.log('Translating completed !');
                     break;

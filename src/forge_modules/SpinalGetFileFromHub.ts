@@ -69,14 +69,15 @@ export default class SpinalGetFileFromHub {
 
   // #region download
   private async download(url: string, dest: string): Promise<void> {
-    ensureDirSync(dest);
+    try {
+      unlinkSync(dest);
+    } catch (error) { }
     const file = createWriteStream(dest);
     const res = await axios({
       method: 'get',
       url,
       responseType: 'stream',
     })
-    res.data.pipe(file);
     return new Promise((resolve, reject) => {
       res.data.pipe(file);
       let error = null;
