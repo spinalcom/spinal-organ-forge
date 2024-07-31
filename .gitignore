@@ -11,3 +11,4 @@ viewerForgeFiles
 .vscode
 bkp
 test
+.env*

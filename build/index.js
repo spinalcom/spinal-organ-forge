@@ -1,6 +1,6 @@
 "use strict";
 /*
- * Copyright 2020 SpinalCom - www.spinalcom.com
+ * Copyright 2024 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -22,52 +22,63 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
-// const SpinalForgeSystem = require('./SpinalForgeSystem');
+const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const SpinalForgeSystem_1 = require("./SpinalForgeSystem");
-const Q = require('q');
 const spinal_model_file_version_model_1 = require("spinal-model-file_version_model");
+const config_1 = require("./config");
+// so it's not cut from the build.
 spinal_model_file_version_model_1.FileVersionModel;
-if (!process.env.CLIENT_ID) {
-    console.log('default config');
-    process.env.SPINAL_USER_ID = '168';
-    process.env.SPINAL_PASSWORD = 'JHGgcz45JKilmzknzelf65ddDadggftIO98P';
-    process.env.SPINALHUB_IP = 'localhost';
-    process.env.SPINALHUB_PORT = '7777';
+function main() {
+    let connectOpt = `${config_1.SPINALHUB_PROTOCOL}://${config_1.SPINAL_USER_ID}:${config_1.SPINAL_PASSWORD}@${config_1.SPINALHUB_IP}`;
+    if (config_1.SPINALHUB_PORT)
+        connectOpt += `:${config_1.SPINALHUB_PORT}/`;
+    else
+        connectOpt += '/';
+    const conn = spinal_core_connectorjs_1.spinalCore.connect(connectOpt);
+    spinal_core_connectorjs_1.spinalCore.load_type(conn, 'FileVersionModel', callbackSuccess, errorConnect);
 }
-const connectOpt = `http://${process.env.SPINAL_USER_ID}:${process.env.SPINAL_PASSWORD}@${process.env.SPINALHUB_IP}:${process.env.SPINALHUB_PORT}/`;
-const conn = spinal_core_connectorjs_type_1.spinalCore.connect(connectOpt);
-const errorConnect = function (err) {
+main();
+function errorConnect(err) {
     if (!err)
         console.log('Error Connect.');
     else
         console.log(`Error Connect : ${err}`);
     process.exit(0);
-};
-const waitModelReady = (file) => {
-    const deferred = Q.defer();
-    const interval = setInterval(() => {
-        if (spinal_core_connectorjs_type_1.FileSystem._sig_server === false) {
-            return false;
-        }
-        clearInterval(interval);
-        deferred.resolve(file);
-        return true;
-    }, 100);
-    return deferred.promise;
-};
-const callbackSuccess = (fileVersionModel) => {
-    waitModelReady(fileVersionModel).then(() => {
+}
+;
+function waitModelReady(file) {
+    return new Promise((resolve) => {
+        const interval = setInterval(() => {
+            if (spinal_core_connectorjs_1.FileSystem._sig_server === false) {
+                return false;
+            }
+            clearInterval(interval);
+            resolve(file);
+            return true;
+        }, 100);
+    });
+}
+;
+function callbackSuccess(fileVersionModel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield waitModelReady(fileVersionModel);
         let filename = 'noname.rvt';
         if (typeof fileVersionModel.filename !== 'undefined') {
             filename = fileVersionModel.filename.get();
         }
         console.log(`new filenameVersion :${filename}`);
         new SpinalForgeSystem_1.default(fileVersionModel, filename);
-    }, (e) => {
-        console.error(e);
     });
-};
-spinal_core_connectorjs_type_1.spinalCore.load_type(conn, 'FileVersionModel', callbackSuccess, errorConnect);
+}
+;
 //# sourceMappingURL=index.js.map

@@ -1,16 +1,6 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
- * Copyright 2020 SpinalCom - www.spinalcom.com
+ * Copyright 2024 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -32,195 +22,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-const SpinalForgeAuth_1 = require("./forge_modules/SpinalForgeAuth");
-const SpinalForgeFile_1 = require("./forge_modules/SpinalForgeFile");
-const SpinalForgeUpload_1 = require("./forge_modules/SpinalForgeUpload");
-const SpinalForgeTranslate_1 = require("./forge_modules/SpinalForgeTranslate");
-const SpinalForgeWaitTranslate_1 = require("./forge_modules/SpinalForgeWaitTranslate");
-const SpinalForgeDownloadDerivative_1 = require("./forge_modules/SpinalForgeDownloadDerivative");
-// import SpinalForgeGetProps from './forge_modules/SpinalForgeGetProps';
-const spinal_core_connectorjs_type_1 = require("spinal-core-connectorjs_type");
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const SpinalGetFileFromHub_1 = require("./forge_modules/SpinalGetFileFromHub");
+const SpinalApsUpload_1 = require("./forge_modules/SpinalApsUpload");
+const SpinalApsTranslateJob_1 = require("./forge_modules/SpinalApsTranslateJob");
+const SpinalApsWaitJob_1 = require("./forge_modules/SpinalApsWaitJob");
+const SpinalApsDownloadDerivative_1 = require("./forge_modules/SpinalApsDownloadDerivative");
+const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const fileVersionState_1 = require("./utils/fileVersionState");
 const QueueJobHandle_1 = require("./utils/QueueJobHandle");
-class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
+class SpinalForgeSystem extends spinal_core_connectorjs_1.Process {
+    //#region constructor
     constructor(fileVersionModel, filename) {
         super(fileVersionModel);
-        this.fileVersionModel = fileVersionModel;
+        this.filename = filename;
         this.classReady = false;
         this.stateFunc = [];
-        this.filename = filename;
         this.job = null;
         this.urn = '';
         this.bucketKey = '';
+        this.fileVersionModel = fileVersionModel;
         this.uid = SpinalForgeSystem.uidCounter;
         SpinalForgeSystem.uidCounter = SpinalForgeSystem.uidCounter + 1;
     }
-    createInfo() {
-        if (typeof this.fileVersionModel.info === 'undefined') {
-            this.fileVersionModel.mod_attr('info', new spinal_core_connectorjs_type_1.Model({
-                bucketKey: '',
-                translation: 0,
-                urn: '',
-            }));
-        }
-    }
-    setupBucketKey(filename) {
-        if (typeof this.fileVersionModel.info.bucketKey !== 'undefined' &&
-            this.fileVersionModel.info.bucketKey.get() !== '') {
-            return this.fileVersionModel.info.bucketKey.get();
-        }
-        {
-            const tmpBucketKey = `spinal_${encodeURIComponent(filename)}_${Date.now()}`;
-            const BUCKET_KEY = encodeURIComponent(Buffer.from(tmpBucketKey)
-                .toString('base64')
-                .replace(/=*/g, ''))
-                .toLowerCase()
-                .replace(/%*/g, '');
-            this.fileVersionModel.info.bucketKey.set(BUCKET_KEY);
-            return BUCKET_KEY;
-        }
-    }
-    createJob(fct) {
-        return () => {
-            if (this.job) {
-                return this.job;
-            }
-            this.job = fct().then(() => {
-                this.job = null;
-            });
-            return this.job;
-        };
-    }
-    addState(stateLabel, fct) {
-        this.stateFunc.push({
-            state: stateLabel,
-            func: this.createJob(fct),
-        });
-    }
-    init() {
-        if (this.classReady === false) {
-            this.classReady = true;
-            this.createInfo();
-            const BUCKET_KEY = this.setupBucketKey(this.filename);
-            this.bucketKey = BUCKET_KEY;
-            this.spinalForgeFile = new SpinalForgeFile_1.default(this.fileVersionModel, this.filename);
-            this.spinalForgeAuth = new SpinalForgeAuth_1.default(BUCKET_KEY);
-            this.spinalForgeUpload = new SpinalForgeUpload_1.default(BUCKET_KEY, this.filename, this.spinalForgeAuth);
-            this.spinalForgeTranslate = new SpinalForgeTranslate_1.default(BUCKET_KEY, this.filename, this.spinalForgeAuth);
-            this.spinalForgeWaitTranslate = new SpinalForgeWaitTranslate_1.default(this.spinalForgeAuth);
-            this.spinalForgeDownloadDerivative = new SpinalForgeDownloadDerivative_1.default(BUCKET_KEY, this.spinalForgeAuth);
-            this.addState('Send tranlation command to organ', this.downloadFile.bind(this));
-            this.addState('File downloading to Organ', this.downloadFile.bind(this));
-            this.addState('File download to Organ completed', this.uploadFileToForge.bind(this));
-            this.addState('Uploading file to Forge', this.uploadFileToForge.bind(this));
-            this.addState('Upload file to Forge completed', this.startConvertion.bind(this));
-            this.addState('In queue for conversion', this.waitConversion.bind(this));
-            this.addState('Converting', this.waitConversion.bind(this));
-            this.addState('Converting completed', this.downloadDerivative.bind(this));
-            this.addState('Download converted file', this.downloadDerivative.bind(this));
-            this.addState('Converted', convertionFinished);
-        }
-    }
-    downloadDerivative() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const model = this.fileVersionModel;
-            if (this.urn === '') {
-                this.urn = model.info.urn.get();
-            }
-            if (typeof model.items === 'undefined') {
-                model.mod_attr('items', []);
-            }
-            try {
-                const { viewables, aecPath } = yield this.spinalForgeDownloadDerivative.downloadDerivative(this.urn);
-                if (aecPath) {
-                    if (model.aecPath) {
-                        model.aecPath.set(aecPath);
-                    }
-                    else {
-                        model.mod_attr("aecPath", aecPath);
-                    }
-                }
-                model.items.clear();
-                for (let i = 0; i < viewables.length; i += 1) {
-                    const item = {
-                        path: viewables[i].path,
-                        name: viewables[i].name,
-                    };
-                    const thumbnail = viewables[i].thumbnail;
-                    if (typeof thumbnail !== 'undefined') {
-                        item.thumbnail = thumbnail;
-                    }
-                    model.items.push(new spinal_core_connectorjs_type_1.Model(item));
-                }
-                // await SpinalForgeGetProps(this.spinalForgeAuth, this.urn, this.bucketKey);
-                model.state.set((0, fileVersionState_1.getState)('Converted'));
-            }
-            catch (e) {
-                console.error(e);
-                model.state.set((0, fileVersionState_1.getState)('Failed'));
-            }
-            finally {
-                // JOB DONE
-                console.log('convertionFinished');
-            }
-        });
-    }
-    waitConversion() {
-        if (this.urn === '') {
-            this.urn = this.fileVersionModel.info.urn.get();
-        }
-        this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Converting'));
-        return this.spinalForgeWaitTranslate
-            .waitTranslate(this.urn)
-            .then(() => {
-            this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Converting completed'));
-        }, (e) => {
-            console.error(e);
-            this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
-        }, (progress) => {
-            console.log(`[${this.filename}] progress => ${progress}`);
-            this.fileVersionModel.info.translation.set(parseInt(progress, 10));
-        });
-    }
-    startConvertion() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.urn = yield this.spinalForgeTranslate.translateInForge();
-                this.fileVersionModel.info.urn.set(this.urn);
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('In queue for conversion'));
-            }
-            catch (e) {
-                console.error(e);
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
-            }
-        });
-    }
-    uploadFileToForge() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Uploading file to Forge'));
-                yield this.spinalForgeUpload.uploadToForge();
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Upload file to Forge completed'));
-            }
-            catch (e) {
-                console.error(e);
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
-            }
-        });
-    }
-    downloadFile() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File downloading to Organ'));
-                yield this.spinalForgeFile.downloadFile();
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File download to Organ completed'));
-            }
-            catch (e) {
-                console.error(e);
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
-            }
-        });
-    }
+    //#endregion
+    //#region onchange
     onchange() {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof this.fileVersionModel.state === 'undefined' ||
@@ -244,12 +79,188 @@ class SpinalForgeSystem extends spinal_core_connectorjs_type_1.Process {
             }
         });
     }
+    //#endregion
+    // #region createInfo
+    createInfo() {
+        if (typeof this.fileVersionModel.info === 'undefined') {
+            this.fileVersionModel.mod_attr('info', new spinal_core_connectorjs_1.Model({
+                bucketKey: '',
+                translation: 0,
+                urn: '',
+            }));
+        }
+    }
+    // #endregion
+    // #region setupBucketKey
+    setupBucketKey() {
+        var _a, _b;
+        if (((_b = (_a = this.fileVersionModel.info) === null || _a === void 0 ? void 0 : _a.bucketKey) === null || _b === void 0 ? void 0 : _b.get()) !== '') {
+            return this.fileVersionModel.info.bucketKey.get();
+        }
+        {
+            const BUCKET_KEY = `spinal_${Date.now()}`;
+            this.fileVersionModel.info.bucketKey.set(BUCKET_KEY);
+            return BUCKET_KEY;
+        }
+    }
+    // #endregion
+    // #region createJob
+    createJob(fct) {
+        return () => {
+            if (this.job) {
+                return this.job;
+            }
+            this.job = fct().then(() => {
+                this.job = null;
+            });
+            return this.job;
+        };
+    }
+    // #endregion
+    // #region addState
+    addState(stateLabel, fct) {
+        this.stateFunc.push({
+            state: stateLabel,
+            func: this.createJob(fct),
+        });
+    }
+    // #endregion
+    // #region init
+    init() {
+        if (this.classReady === false) {
+            this.classReady = true;
+            this.createInfo();
+            const BUCKET_KEY = this.setupBucketKey();
+            this.bucketKey = BUCKET_KEY;
+            this.spinalGetFileFromHub = new SpinalGetFileFromHub_1.default(this.fileVersionModel, this.filename);
+            this.spinalApsUpload = new SpinalApsUpload_1.default(BUCKET_KEY, this.filename);
+            this.spinalApsTranslateJob = new SpinalApsTranslateJob_1.default(BUCKET_KEY, this.filename);
+            this.spinalApsWaitJob = new SpinalApsWaitJob_1.default();
+            this.spinalApsDownloadDerivative = new SpinalApsDownloadDerivative_1.SpinalApsDownloadDerivative(BUCKET_KEY);
+            this.addState('Send tranlation command to organ', this.downloadFile.bind(this));
+            this.addState('File downloading to Organ', this.downloadFile.bind(this));
+            this.addState('File download to Organ completed', this.uploadFileToForge.bind(this));
+            this.addState('Uploading file to Forge', this.uploadFileToForge.bind(this));
+            this.addState('Upload file to Forge completed', this.startConvertion.bind(this));
+            this.addState('In queue for conversion', this.waitConversion.bind(this));
+            this.addState('Converting', this.waitConversion.bind(this));
+            this.addState('Converting completed', this.downloadDerivative.bind(this));
+            this.addState('Download converted file', this.downloadDerivative.bind(this));
+            this.addState('Converted', convertionFinished);
+        }
+    }
+    // #endregion
+    // #region downloadDerivative
+    downloadDerivative() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const model = this.fileVersionModel;
+            if (this.urn === '') {
+                this.urn = model.info.urn.get();
+            }
+            if (typeof model.items === 'undefined') {
+                model.mod_attr('items', []);
+            }
+            try {
+                const { viewables, aecPath } = yield this.spinalApsDownloadDerivative.run(this.urn, {
+                    log: console.log,
+                });
+                if (aecPath) {
+                    if (model.aecPath) {
+                        model.aecPath.set(aecPath);
+                    }
+                    else {
+                        model.mod_attr("aecPath", aecPath);
+                    }
+                }
+                model.items.clear();
+                for (let i = 0; i < viewables.length; i += 1) {
+                    const item = {
+                        path: viewables[i].path,
+                        name: viewables[i].name,
+                    };
+                    model.items.push(new spinal_core_connectorjs_1.Model(item));
+                }
+                model.state.set((0, fileVersionState_1.getState)('Converted'));
+            }
+            catch (e) {
+                console.error(e);
+                model.state.set((0, fileVersionState_1.getState)('Failed'));
+            }
+            finally {
+                // JOB DONE
+                console.log('convertionFinished');
+            }
+        });
+    }
+    // #endregion
+    // #region waitConversion
+    waitConversion() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.urn === '') {
+                this.urn = this.fileVersionModel.info.urn.get();
+            }
+            this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Converting'));
+            try {
+                yield this.spinalApsWaitJob.waitTranslate(this.urn);
+            }
+            catch (e) {
+                console.error(e);
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
+            }
+            this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Converting completed'));
+        });
+    }
+    // #endregion
+    // #region startConvertion
+    startConvertion() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.urn = yield this.spinalApsTranslateJob.translateInForge();
+                this.fileVersionModel.info.urn.set(this.urn);
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('In queue for conversion'));
+            }
+            catch (e) {
+                console.error(e);
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
+            }
+        });
+    }
+    // #endregion
+    // #region uploadFileToForge
+    uploadFileToForge() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Uploading file to Forge'));
+                yield this.spinalApsUpload.uploadToAps();
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Upload file to Forge completed'));
+            }
+            catch (e) {
+                console.error(e);
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
+            }
+        });
+    }
+    // #endregion
+    // #region downloadFile
+    downloadFile() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File downloading to Organ'));
+                yield this.spinalGetFileFromHub.downloadFile();
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File download to Organ completed'));
+            }
+            catch (e) {
+                console.error(e);
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
+            }
+        });
+    }
 }
-// tslint:disable-next-line:variable-name
 SpinalForgeSystem.uidCounter = 0;
 exports.default = SpinalForgeSystem;
+// #region convertionFinished
 function convertionFinished() {
-    // console.log('convertionFinished');
     return Promise.resolve();
 }
+// #endregion
 //# sourceMappingURL=SpinalForgeSystem.js.map

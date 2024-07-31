@@ -1,8 +1,6 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getState = exports.getStateLabel = void 0;
 /*
- * Copyright 2018 SpinalCom - www.spinalcom.com
+ * Copyright 2024 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -24,7 +22,9 @@ exports.getState = exports.getStateLabel = void 0;
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-const fileVersionState = [
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getState = exports.getStateLabel = exports.fileVersionState = void 0;
+exports.fileVersionState = [
     'Inital',
     'Send tranlation command to organ',
     'File downloading to Organ',
@@ -38,14 +38,14 @@ const fileVersionState = [
     'Converted',
     'Failed',
 ];
-exports.default = fileVersionState;
+exports.default = exports.fileVersionState;
 function getStateLabel(state) {
-    return fileVersionState[state];
+    return exports.fileVersionState[state];
 }
 exports.getStateLabel = getStateLabel;
 function getState(stateLabel) {
-    for (let index = 0; index < fileVersionState.length; index += 1) {
-        if (stateLabel === fileVersionState[index])
+    for (let index = 0; index < exports.fileVersionState.length; index += 1) {
+        if (stateLabel === exports.fileVersionState[index])
             return index;
     }
     return undefined;

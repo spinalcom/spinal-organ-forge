@@ -1,6 +1,6 @@
 "use strict";
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
+ * Copyright 2024 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
@@ -24,7 +24,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.queueJobHandle = exports.QueueJobHandle = void 0;
-const q = require('q');
+const q = require("q");
 class QueueJobHandle {
     constructor() {
         this.currentJobs = new Map();

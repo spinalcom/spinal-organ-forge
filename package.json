@@ -1,33 +1,32 @@
 {
   "name": "spinal-organ-forge",
-  "version": "v1.1.8",
+  "version": "v2.0.0",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "async": "^3.2.0",
+    "@aps_sdk/authentication": "^0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "^0.0.7-beta.1",
+    "@aps_sdk/model-derivative": "^0.1.0-beta.1",
+    "@aps_sdk/oss": "^0.1.0-beta.1",
+    "axios": "^1.7.2",
     "base64-url": "^2.2.1",
     "dotenv": "^16.0.3",
-    "forge-apis": "^0.9.10",
-    "mkdirp": "^0.5.1",
-    "node-zip": "^1.1.1",
+    "fs-extra": "^11.2.0",
+    "p-queue": "^6.6.2",
     "q": "^1.5.1",
-    "request": "^2.88.2",
-    "spinal-core-connectorjs_type": "git+https://github.com/spinalcom/spinal-core-connectorjs_type.git",
-    "spinal-model-file_version_model": "git+https://github.com/spinalcom/spinal-model-file_version_model.git"
+    "spinal-core-connectorjs": "git+https://github.com/spinalcom/spinal-core-connectorjs.git",
+    "spinal-model-file_version_model": "git+https://github.com/spinalcom/spinal-model-file_version_model.git",
+    "svf-utils": "^5.0.3"
   },
   "devDependencies": {
-    "@types/async": "^3.2.3",
-    "@types/forge-apis": "^0.8.2",
-    "@types/mkdirp": "^1.0.2",
-    "@types/mocha": "^5.2.5",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.14.11",
-    "tslint": "^5.11.0",
-    "tslint-config-airbnb": "^5.11.1",
-    "typescript": "^3.2.2"
+    "@types/q": "^1.5.8",
+    "typescript": "^5.5.4"
   },
   "scripts": {
     "spinal-register": "spinal-register --node-organ",
-    "create-ln": "node create_ln_forge_viewer_file.js",
+    "create-ln": "node build/create_ln_forge_viewer_file.js",
     "cut-postinstall": "npm run spinal-register && npm run create-ln"
   }
 }

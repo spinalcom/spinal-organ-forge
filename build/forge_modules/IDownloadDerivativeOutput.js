@@ -1,10 +1,11 @@
+"use strict";
 /*
- * Copyright 2021 SpinalCom - www.spinalcom.com
+ * Copyright 2024 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
  * Please read all of the following terms and conditions
- * of the Free Software license Agreement ("Agreement")
+ * of the Software license Agreement ("Agreement")
  * carefully.
  *
  * This Agreement is a legally binding contract between
@@ -21,5 +22,5 @@
  * with this file. If not, see
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
-
-require("./build/index");
+Object.defineProperty(exports, "__esModule", { value: true });
+//# sourceMappingURL=IDownloadDerivativeOutput.js.map

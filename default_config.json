@@ -3,6 +3,7 @@
     "INTERVAL": 2000,
     "CLIENT_ID": "EDIT_ME",
     "CLIENT_SECRET": "EDIT_ME",
+    "SPINALHUB_PROTOCOL": "http",
     "SPINAL_USER_ID": "EDIT_ME",
     "SPINAL_PASSWORD": "EDIT_ME"
   },
@@ -10,6 +11,7 @@
     "INTERVAL": 2000,
     "CLIENT_ID": "EDIT_ME",
     "CLIENT_SECRET": "EDIT_ME",
+    "SPINALHUB_PROTOCOL": "http",
     "SPINAL_USER_ID": "EDIT_ME",
     "SPINAL_PASSWORD": "EDIT_ME"
   },
@@ -17,6 +19,7 @@
     "INTERVAL": 2000,
     "CLIENT_ID": "EDIT_ME",
     "CLIENT_SECRET": "EDIT_ME",
+    "SPINALHUB_PROTOCOL": "http",
     "SPINAL_USER_ID": "EDIT_ME",
     "SPINAL_PASSWORD": "EDIT_ME"
   }
