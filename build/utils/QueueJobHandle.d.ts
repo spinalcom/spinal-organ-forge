@@ -1,4 +1,3 @@
-/// <reference types="q" />
 export declare class QueueJobHandle {
     private currentJobs;
     private waitingJobs;

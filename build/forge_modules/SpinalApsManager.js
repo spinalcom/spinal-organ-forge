@@ -42,9 +42,9 @@ class SpinalApsManager {
     // #region singleton
     constructor() {
         const sdk = autodesk_sdkmanager_1.SdkManagerBuilder.create().build();
-        this.authenticationClient = new authentication_1.AuthenticationClient(sdk);
-        this.ossClient = new oss_1.OssClient(sdk);
-        this.modelDerivativeClient = new model_derivative_1.ModelDerivativeClient(sdk);
+        this.authenticationClient = new authentication_1.AuthenticationClient({ sdkManager: sdk });
+        this.ossClient = new oss_1.OssClient({ sdkManager: sdk });
+        this.modelDerivativeClient = new model_derivative_1.ModelDerivativeClient({ sdkManager: sdk });
     }
     static getInstance() {
         return new SpinalApsManager();
@@ -75,13 +75,17 @@ class SpinalApsManager {
     ensureBucketExists(bucketKey, token) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.ossClient.getBucketDetails(token, bucketKey);
+                yield this.ossClient.getBucketDetails(bucketKey, {
+                    accessToken: token
+                });
             }
             catch (err) {
                 if (err.axiosError.response.status === 404) {
-                    yield this.ossClient.createBucket(token, oss_1.CreateBucketXAdsRegionEnum.Emea, {
+                    yield this.ossClient.createBucket(oss_1.Region.Emea, {
                         bucketKey: bucketKey,
-                        policyKey: oss_1.CreateBucketsPayloadPolicyKeyEnum.Transient
+                        policyKey: oss_1.PolicyKey.Transient
+                    }, {
+                        accessToken: token
                     });
                 }
                 else {

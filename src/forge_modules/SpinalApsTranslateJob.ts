@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { Region, Type, View } from "@aps_sdk/model-derivative";
+import { Region, OutputType, View } from "@aps_sdk/model-derivative";
 import { spinalApsManager } from "./SpinalApsManager";
 
 export default class SpinalApsTranslateJob {
@@ -34,18 +34,19 @@ export default class SpinalApsTranslateJob {
     const accessToken = await spinalApsManager.getAuthAndCreateBucket(this.bucketKey);
     const objectID = await this.getObjectIdFile(accessToken);
     const urn = this.urnify(objectID);
-    const res = await spinalApsManager.modelDerivativeClient.startJob(accessToken, {
+    const res = await spinalApsManager.modelDerivativeClient.startJob({
       input: {
         urn,
         compressedUrn: false,
       },
       output: {
         formats: [{
-          type: Type.Svf,
+          type: OutputType.Svf,
           views: [View._3d, View._2d],
         }],
       },
     }, {
+      accessToken,
       region: Region.Emea,
     })
     return res.urn;
@@ -54,7 +55,8 @@ export default class SpinalApsTranslateJob {
 
   // #region getObjectIdFile
   private async getObjectIdFile(accessToken: string) {
-    const res = await spinalApsManager.ossClient.getObjects(accessToken, this.bucketKey, {
+    const res = await spinalApsManager.ossClient.getObjects(this.bucketKey, {
+      accessToken,
       limit: 20
     });
     for (const obj of res.items) {

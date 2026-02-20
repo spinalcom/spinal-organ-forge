@@ -22,7 +22,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 
-import { OssClient, CreateBucketsPayloadPolicyKeyEnum, CreateBucketXAdsRegionEnum } from '@aps_sdk/oss';
+import { OssClient, PolicyKey, Region } from '@aps_sdk/oss';
 import { SdkManagerBuilder } from '@aps_sdk/autodesk-sdkmanager';
 import { Scopes, AuthenticationClient } from '@aps_sdk/authentication';
 import { ModelDerivativeClient } from '@aps_sdk/model-derivative';
@@ -36,9 +36,9 @@ export class SpinalApsManager {
   // #region singleton
   private constructor() {
     const sdk = SdkManagerBuilder.create().build();
-    this.authenticationClient = new AuthenticationClient(sdk);
-    this.ossClient = new OssClient(sdk);
-    this.modelDerivativeClient = new ModelDerivativeClient(sdk);
+    this.authenticationClient = new AuthenticationClient({ sdkManager: sdk });
+    this.ossClient = new OssClient({ sdkManager: sdk });
+    this.modelDerivativeClient = new ModelDerivativeClient({ sdkManager: sdk });
   }
   static getInstance(): SpinalApsManager {
     return new SpinalApsManager();
@@ -67,12 +67,17 @@ export class SpinalApsManager {
   // #region ensureBucketExists
   async ensureBucketExists(bucketKey: string, token: string) {
     try {
-      await this.ossClient.getBucketDetails(token, bucketKey);
+      await this.ossClient.getBucketDetails(bucketKey, {
+        accessToken: token
+
+      });
     } catch (err) {
       if (err.axiosError.response.status === 404) {
-        await this.ossClient.createBucket(token, CreateBucketXAdsRegionEnum.Emea, {
+        await this.ossClient.createBucket(Region.Emea, {
           bucketKey: bucketKey,
-          policyKey: CreateBucketsPayloadPolicyKeyEnum.Transient
+          policyKey: PolicyKey.Transient
+        }, {
+          accessToken: token
         });
       } else {
         throw err;

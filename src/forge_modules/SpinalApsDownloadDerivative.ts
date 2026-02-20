@@ -27,7 +27,7 @@ import * as path from 'path';
 import * as fse from 'fs-extra';
 import { SdkManager, SdkManagerBuilder } from '@aps_sdk/autodesk-sdkmanager';
 import {
-  ManifestDerivativesChildren,
+  ManifestResources,
   ModelDerivativeClient,
   Manifest,
   Region
@@ -45,7 +45,7 @@ export interface IDownloadOptions {
   failOnMissingAssets?: boolean;
 }
 export type IDownloadContext = Required<IDownloadOptions>
-export interface SVFManifestDerivative {
+export interface SVFManifestResources {
   guid: string;
   type: string;
   role: string;
@@ -60,7 +60,7 @@ export class SpinalApsDownloadDerivative {
   // #region contructor
   constructor(private bucketKey: string) {
     this.sdkManager = SdkManagerBuilder.create().build();
-    this.modelDerivativeClient = new ModelDerivativeClient(this.sdkManager);
+    this.modelDerivativeClient = new ModelDerivativeClient({ sdkManager: this.sdkManager });
 
   }
   // #endregion
@@ -80,8 +80,11 @@ export class SpinalApsDownloadDerivative {
   private async _download(urn: string, context: IDownloadContext): Promise<IDownloadDerivativeOutput> {
     context.log(`Downloading derivative ${urn}`);
     const accessToken = await spinalApsManager.getToken([Scopes.ViewablesRead]);
-    const manifest = await this.modelDerivativeClient.getManifest(accessToken, urn,
-      { region: Region.Emea }
+    const manifest = await this.modelDerivativeClient.getManifest(urn,
+      {
+        accessToken,
+        region: Region.Emea
+      }
     );
     this.debug_output_to_file(manifest, 'manifest.json');
     const urnDir = path.join(context.outputDir || '.', 'resources');
@@ -112,17 +115,17 @@ export class SpinalApsDownloadDerivative {
 
   // #region collectDerivatives
   private _collectDerivatives(manifest: Manifest): {
-    aec: ManifestDerivativesChildren;
-    // thumbnailDerivatives: SVFManifestDerivative[];
-    // f2dDerivatives: ManifestDerivativesChildren[];
-    svfDerivatives: SVFManifestDerivative[];
+    aec: ManifestResources;
+    // thumbnailDerivatives: SVFManifestResources[];
+    // f2dDerivatives: ManifestResources[];
+    svfDerivatives: SVFManifestResources[];
   } {
-    let aec: ManifestDerivativesChildren;
-    const svfDerivatives: SVFManifestDerivative[] = [];
-    // const thumbnailDerivatives: SVFManifestDerivative[] = [];
-    // const f2dDerivatives: ManifestDerivativesChildren[] = [];
+    let aec: ManifestResources;
+    const svfDerivatives: SVFManifestResources[] = [];
+    // const thumbnailDerivatives: SVFManifestResources[] = [];
+    // const f2dDerivatives: ManifestResources[] = [];
 
-    function collectDerivativesRec(derivative: ManifestDerivativesChildren) {
+    function collectDerivativesRec(derivative: ManifestResources) {
       if (derivative.type === 'resource' && derivative.role === 'graphics') {
         if ((derivative as any).mime === 'application/autodesk-svf')
           svfDerivatives.push(derivative as any);
@@ -155,7 +158,7 @@ export class SpinalApsDownloadDerivative {
 
   // #region dlSvfDerivatives
   private async _dlSvfDerivatives(
-    svfDerivatives: SVFManifestDerivative[],
+    svfDerivatives: SVFManifestResources[],
     context: Required<IDownloadOptions>,
     urnDir: string,
     urn: string,
@@ -199,7 +202,7 @@ export class SpinalApsDownloadDerivative {
     urn: string,
     asset: ISvfManifestAsset,
     context: Required<IDownloadOptions>,
-    idxDeriv: number, svfDerivatives: SVFManifestDerivative[],
+    idxDeriv: number, svfDerivatives: SVFManifestResources[],
     idxAsset: number,
     manifest: ISvfManifest,
     outputDir: string) {
@@ -230,7 +233,7 @@ export class SpinalApsDownloadDerivative {
   // #endregion
 
   // #region dlAec
-  private async _dlAec(aec: ManifestDerivativesChildren, context: IDownloadContext, urn: string): Promise<string> {
+  private async _dlAec(aec: ManifestResources, context: IDownloadContext, urn: string): Promise<string> {
     if (aec) {
       fse.ensureDirSync(context.outputDir);
       const urnDeriv: string = (aec as any).urn;
@@ -246,8 +249,11 @@ export class SpinalApsDownloadDerivative {
   private async _dlDerivativeFile(urn: string, derivativeUrn: string, decompress: boolean = false): Promise<ArrayBuffer> {
     const accessToken = await spinalApsManager.getToken([Scopes.ViewablesRead]);
     try {
-      const downloadInfo = await this.modelDerivativeClient.getDerivativeUrl(accessToken, derivativeUrn, urn,
-        { region: Region.Emea });
+      const downloadInfo = await this.modelDerivativeClient.getDerivativeUrl(derivativeUrn, urn,
+        {
+          accessToken,
+          region: Region.Emea
+        });
       const response = await axios.get(downloadInfo.url as string, { responseType: 'arraybuffer', decompress });
       return response.data;
     } catch (error) {

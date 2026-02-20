@@ -38,7 +38,7 @@ export default class SpinalApsUpload {
     console.log('Starting to upload the file [%s] to aps.', this.filename);
     const accessToken = await spinalApsManager.getAuthAndCreateBucket(this.bucketKey);
     const filepath = path.resolve(OUT_DIR, this.filename);
-    await spinalApsManager.ossClient.upload(this.bucketKey, this.filename, filepath, accessToken);
+    await spinalApsManager.ossClient.uploadObject(this.bucketKey, this.filename, filepath, { accessToken });
     try {
       unlinkSync(filepath);
     } catch (e) {

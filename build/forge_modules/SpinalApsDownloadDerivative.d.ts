@@ -6,7 +6,7 @@ export interface IDownloadOptions {
     failOnMissingAssets?: boolean;
 }
 export type IDownloadContext = Required<IDownloadOptions>;
-export interface SVFManifestDerivative {
+export interface SVFManifestResources {
     guid: string;
     type: string;
     role: string;
