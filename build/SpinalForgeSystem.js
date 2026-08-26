@@ -40,6 +40,7 @@ const SpinalApsDownloadDerivative_1 = require("./forge_modules/SpinalApsDownload
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const fileVersionState_1 = require("./utils/fileVersionState");
 const QueueJobHandle_1 = require("./utils/QueueJobHandle");
+const unzipSvfZip_1 = require("./forge_modules/unzipSvfZip");
 class SpinalForgeSystem extends spinal_core_connectorjs_1.Process {
     //#region constructor
     constructor(fileVersionModel, filename) {
@@ -147,12 +148,16 @@ class SpinalForgeSystem extends spinal_core_connectorjs_1.Process {
             this.addState('Converting completed', this.downloadDerivative.bind(this));
             this.addState('Download converted file', this.downloadDerivative.bind(this));
             this.addState('Converted', convertionFinished);
+            this.addState('Failed', failed);
+            this.addState('File download completed, svf.zip detected', this.UnzippingSvfZip.bind(this));
+            this.addState('Unzipping svf.zip', this.UnzippingSvfZip.bind(this));
         }
     }
     // #endregion
     // #region downloadDerivative
     downloadDerivative() {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const model = this.fileVersionModel;
             if (this.urn === '') {
                 this.urn = model.info.urn.get();
@@ -169,16 +174,16 @@ class SpinalForgeSystem extends spinal_core_connectorjs_1.Process {
                         model.aecPath.set(aecPath);
                     }
                     else {
-                        model.mod_attr("aecPath", aecPath);
+                        model.mod_attr('aecPath', aecPath);
                     }
                 }
-                model.items.clear();
+                (_a = model.items) === null || _a === void 0 ? void 0 : _a.clear();
                 for (let i = 0; i < viewables.length; i += 1) {
                     const item = {
                         path: viewables[i].path,
                         name: viewables[i].name,
                     };
-                    model.items.push(new spinal_core_connectorjs_1.Model(item));
+                    (_b = model.items) === null || _b === void 0 ? void 0 : _b.push(new spinal_core_connectorjs_1.Model(item));
                 }
                 model.state.set((0, fileVersionState_1.getState)('Converted'));
             }
@@ -246,8 +251,29 @@ class SpinalForgeSystem extends spinal_core_connectorjs_1.Process {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File downloading to Organ'));
-                yield this.spinalGetFileFromHub.downloadFile();
-                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File download to Organ completed'));
+                const filePath = yield this.spinalGetFileFromHub.downloadFile();
+                // if file extention is .svf.zip the unzip set state to
+                if (filePath.endsWith('.svf.zip')) {
+                    this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File download completed, svf.zip detected'));
+                }
+                else {
+                    this.fileVersionModel.state.set((0, fileVersionState_1.getState)('File download to Organ completed'));
+                }
+            }
+            catch (e) {
+                console.error(e);
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Failed'));
+            }
+        });
+    }
+    // #endregion
+    // #region Unzipping
+    UnzippingSvfZip() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Unzipping svf.zip'));
+                yield (0, unzipSvfZip_1.unzipSvfZip)(this.filename, this.fileVersionModel);
+                this.fileVersionModel.state.set((0, fileVersionState_1.getState)('Converted'));
             }
             catch (e) {
                 console.error(e);
@@ -260,6 +286,11 @@ SpinalForgeSystem.uidCounter = 0;
 exports.default = SpinalForgeSystem;
 // #region convertionFinished
 function convertionFinished() {
+    return Promise.resolve();
+}
+// #endregion
+// #region failed
+function failed() {
     return Promise.resolve();
 }
 // #endregion

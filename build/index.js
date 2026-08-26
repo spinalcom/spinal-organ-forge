@@ -1,11 +1,11 @@
 "use strict";
 /*
- * Copyright 2024 SpinalCom - www.spinalcom.com
+ * Copyright 2026 SpinalCom - www.spinalcom.com
  *
  * This file is part of SpinalCore.
  *
  * Please read all of the following terms and conditions
- * of the Free Software license Agreement ("Agreement")
+ * of the Software license Agreement ("Agreement")
  * carefully.
  *
  * This Agreement is a legally binding contract between
@@ -55,7 +55,6 @@ function errorConnect(err) {
         console.log(`Error Connect : ${err}`);
     process.exit(0);
 }
-;
 function waitModelReady(file) {
     return new Promise((resolve) => {
         const interval = setInterval(() => {
@@ -68,7 +67,6 @@ function waitModelReady(file) {
         }, 100);
     });
 }
-;
 function callbackSuccess(fileVersionModel) {
     return __awaiter(this, void 0, void 0, function* () {
         yield waitModelReady(fileVersionModel);
@@ -80,5 +78,4 @@ function callbackSuccess(fileVersionModel) {
         new SpinalForgeSystem_1.default(fileVersionModel, filename);
     });
 }
-;
 //# sourceMappingURL=index.js.map

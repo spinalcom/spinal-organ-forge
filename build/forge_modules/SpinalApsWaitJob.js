@@ -46,7 +46,8 @@ class SpinalApsWaitJob {
                 const access_token = yield SpinalApsManager_1.spinalApsManager.getToken([
                     authentication_1.Scopes.DataRead, authentication_1.Scopes.BucketRead,
                 ]);
-                const manifest = yield SpinalApsManager_1.spinalApsManager.modelDerivativeClient.getManifest(access_token, urn, {
+                const manifest = yield SpinalApsManager_1.spinalApsManager.modelDerivativeClient.getManifest(urn, {
+                    accessToken: access_token,
                     region: model_derivative_1.Region.Emea
                 });
                 if (manifest.status === 'success' && manifest.progress === 'complete') {

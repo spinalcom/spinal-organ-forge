@@ -38,7 +38,8 @@ export default class SpinalApsWaitJob {
       const access_token = await spinalApsManager.getToken([
         Scopes.DataRead, Scopes.BucketRead,
       ])
-      const manifest = await spinalApsManager.modelDerivativeClient.getManifest(access_token, urn, {
+      const manifest = await spinalApsManager.modelDerivativeClient.getManifest(urn, {
+        accessToken: access_token,
         region: Region.Emea
       });
 

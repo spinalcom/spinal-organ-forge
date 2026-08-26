@@ -21,7 +21,7 @@ export default class SpinalForgeSystem extends spinalProcess {
     spinalApsTranslateJob: SpinalApsTranslateJob;
     spinalApsWaitJob: SpinalApsWaitJob;
     spinalApsDownloadDerivative: SpinalApsDownloadDerivative;
-    job: Promise<void>;
+    job: Promise<void> | null;
     urn: string;
     bucketKey: string;
     constructor(fileVersionModel: FileVersionModel, filename: string);
@@ -36,5 +36,6 @@ export default class SpinalForgeSystem extends spinalProcess {
     startConvertion(): Promise<void>;
     uploadFileToForge(): Promise<void>;
     downloadFile(): Promise<void>;
+    UnzippingSvfZip(): Promise<void>;
 }
 export {};

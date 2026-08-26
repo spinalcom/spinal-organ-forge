@@ -23,7 +23,9 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getState = exports.getStateLabel = exports.fileVersionState = void 0;
+exports.fileVersionState = void 0;
+exports.getStateLabel = getStateLabel;
+exports.getState = getState;
 exports.fileVersionState = [
     'Inital', // 0
     'Send tranlation command to organ', // 1
@@ -37,12 +39,13 @@ exports.fileVersionState = [
     'Download converted file', // 9
     'Converted', // 10
     'Failed', // 11
+    'File download completed, svf.zip detected', // 12
+    'Unzipping svf.zip', // 13
 ];
 exports.default = exports.fileVersionState;
 function getStateLabel(state) {
     return exports.fileVersionState[state];
 }
-exports.getStateLabel = getStateLabel;
 function getState(stateLabel) {
     for (let index = 0; index < exports.fileVersionState.length; index += 1) {
         if (stateLabel === exports.fileVersionState[index])
@@ -50,5 +53,4 @@ function getState(stateLabel) {
     }
     return undefined;
 }
-exports.getState = getState;
 //# sourceMappingURL=fileVersionState.js.map

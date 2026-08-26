@@ -34,6 +34,7 @@ import {
 import { join } from 'path';
 import * as Zip from 'adm-zip';
 import type { IViewable } from './IViewable';
+import { getState } from '../utils/fileVersionState';
 
 export async function unzipSvfZip(
   filename: string,
@@ -45,9 +46,11 @@ export async function unzipSvfZip(
   }
   const folderPath = createNewFolderInViewerForgeFile();
   const zip = new Zip(filePath);
+  fileVersionModel.state.set(getState('Unzipping svf.zip'));
+
+  console.log(`Unzipping svf.zip to ${folderPath}`);
   zip.extractAllTo(folderPath, true);
-  fileVersionModel.state.set('Unzipped svf.zip');
-  console.log(`Unzipped svf.zip to ${folderPath}`);
+
   // delete the svf.zip file after unzipping
   unlinkSync(filePath);
 

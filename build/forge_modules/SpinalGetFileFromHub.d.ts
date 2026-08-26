@@ -3,6 +3,6 @@ export default class SpinalGetFileFromHub {
     fileVersionModel: FileVersionModel;
     filename: string;
     constructor(fileVersionModel: FileVersionModel, filename: string);
-    downloadFile(): Promise<void>;
+    downloadFile(): Promise<string>;
     private download;
 }

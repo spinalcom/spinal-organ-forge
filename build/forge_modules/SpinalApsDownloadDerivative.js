@@ -47,7 +47,7 @@ class SpinalApsDownloadDerivative {
     constructor(bucketKey) {
         this.bucketKey = bucketKey;
         this.sdkManager = autodesk_sdkmanager_1.SdkManagerBuilder.create().build();
-        this.modelDerivativeClient = new model_derivative_1.ModelDerivativeClient(this.sdkManager);
+        this.modelDerivativeClient = new model_derivative_1.ModelDerivativeClient({ sdkManager: this.sdkManager });
     }
     // #endregion
     // #region run
@@ -66,7 +66,10 @@ class SpinalApsDownloadDerivative {
         return __awaiter(this, void 0, void 0, function* () {
             context.log(`Downloading derivative ${urn}`);
             const accessToken = yield SpinalApsManager_1.spinalApsManager.getToken([authentication_1.Scopes.ViewablesRead]);
-            const manifest = yield this.modelDerivativeClient.getManifest(accessToken, urn, { region: model_derivative_1.Region.Emea });
+            const manifest = yield this.modelDerivativeClient.getManifest(urn, {
+                accessToken,
+                region: model_derivative_1.Region.Emea
+            });
             this.debug_output_to_file(manifest, 'manifest.json');
             const urnDir = path.join(context.outputDir || '.', 'resources');
             const viewables = [];
@@ -95,8 +98,8 @@ class SpinalApsDownloadDerivative {
     _collectDerivatives(manifest) {
         let aec;
         const svfDerivatives = [];
-        // const thumbnailDerivatives: SVFManifestDerivative[] = [];
-        // const f2dDerivatives: ManifestDerivativesChildren[] = [];
+        // const thumbnailDerivatives: SVFManifestResources[] = [];
+        // const f2dDerivatives: ManifestResources[] = [];
         function collectDerivativesRec(derivative) {
             if (derivative.type === 'resource' && derivative.role === 'graphics') {
                 if (derivative.mime === 'application/autodesk-svf')
@@ -213,7 +216,10 @@ class SpinalApsDownloadDerivative {
         return __awaiter(this, arguments, void 0, function* (urn, derivativeUrn, decompress = false) {
             const accessToken = yield SpinalApsManager_1.spinalApsManager.getToken([authentication_1.Scopes.ViewablesRead]);
             try {
-                const downloadInfo = yield this.modelDerivativeClient.getDerivativeUrl(accessToken, derivativeUrn, urn, { region: model_derivative_1.Region.Emea });
+                const downloadInfo = yield this.modelDerivativeClient.getDerivativeUrl(derivativeUrn, urn, {
+                    accessToken,
+                    region: model_derivative_1.Region.Emea
+                });
                 const response = yield axios_1.default.get(downloadInfo.url, { responseType: 'arraybuffer', decompress });
                 return response.data;
             }

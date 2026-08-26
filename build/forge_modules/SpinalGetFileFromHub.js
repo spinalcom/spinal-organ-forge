@@ -51,16 +51,16 @@ class SpinalGetFileFromHub {
             console.log(`Starting to Download the File : ${this.filename}`);
             (0, fs_extra_1.ensureDirSync)(OUT_DIR);
             const path = yield (0, loadModelPtr_1.loadModelPtr)(this.fileVersionModel.ptr);
+            const filePath = nodepath.resolve(OUT_DIR, this.filename);
             try {
-                (0, fs_extra_1.unlinkSync)(this.filename);
+                (0, fs_extra_1.unlinkSync)(filePath);
             }
-            catch (error) {
-            }
+            catch (error) { }
             let url;
             if (path.constructor.name === 'Path') {
                 url = `${config_1.SPINALHUB_PROTOCOL}://${config_1.SPINALHUB_IP}`;
                 if (config_1.SPINALHUB_PORT)
-                    url += `:${process.env.SPINALHUB_PORT}/sceen/_?u=${path._server_id}`;
+                    url += `:${config_1.SPINALHUB_PORT}/sceen/_?u=${path._server_id}`;
                 else
                     url += `/sceen/_?u=${path._server_id}`;
             }
@@ -69,7 +69,11 @@ class SpinalGetFileFromHub {
                     url = `${path.host.get()}/file/${encodeURIComponent(path.httpRootPath.get())}/${encodeURIComponent(path.httpPath.get())}`;
                 }
             }
-            return this.download(url, nodepath.resolve(OUT_DIR, this.filename));
+            if (!url) {
+                throw new Error('Error: Unable to get the file from SpinalHub');
+            }
+            yield this.download(url, filePath);
+            return filePath;
         });
     }
     // #endregion
@@ -89,7 +93,7 @@ class SpinalGetFileFromHub {
             return new Promise((resolve, reject) => {
                 res.data.pipe(file);
                 let error = null;
-                file.on('error', err => {
+                file.on('error', (err) => {
                     error = err;
                     file.close();
                     try {

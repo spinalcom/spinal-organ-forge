@@ -23,7 +23,7 @@
  * <http://resources.spinalcom.com/licenses.pdf>.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadModelPtr = void 0;
+exports.loadModelPtr = loadModelPtr;
 const spinal_core_connectorjs_1 = require("spinal-core-connectorjs");
 const mapModelDictionary = new Map();
 function loadModelPtr(model) {
@@ -61,6 +61,5 @@ function loadModelPtr(model) {
     mapModelDictionary.set(model.data.value, promise);
     return promise;
 }
-exports.loadModelPtr = loadModelPtr;
 exports.default = loadModelPtr;
 //# sourceMappingURL=loadModelPtr.js.map
