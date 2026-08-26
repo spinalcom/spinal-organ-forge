@@ -48,7 +48,10 @@ function unzipSvfZip(filename, fileVersionModel) {
         const zip = new Zip(filePath);
         fileVersionModel.state.set((0, fileVersionState_1.getState)('Unzipping svf.zip'));
         console.log(`Unzipping svf.zip to ${folderPath}`);
-        zip.extractAllTo(folderPath, true);
+        const skippedSymlinks = extractZipWithoutSymlinks(zip, folderPath);
+        if (skippedSymlinks > 0) {
+            console.log(`Skipped ${skippedSymlinks} symbolic link entr${skippedSymlinks > 1 ? 'ies' : 'y'} from zip`);
+        }
         // delete the svf.zip file after unzipping
         (0, fs_1.unlinkSync)(filePath);
         try {
@@ -172,5 +175,34 @@ function findAllSvfInFolder(folderPath) {
         }
     }
     return svfFiles;
+}
+function extractZipWithoutSymlinks(zip, destination) {
+    let skippedSymlinks = 0;
+    const entries = zip.getEntries();
+    for (const entry of entries) {
+        const entryName = (0, path_1.normalize)(entry.entryName).replace(/\\/g, '/');
+        if (isUnsafeZipEntryPath(entryName)) {
+            throw new Error(`Unsafe zip entry path detected: ${entry.entryName}`);
+        }
+        if (isSymlinkEntry(entry)) {
+            skippedSymlinks += 1;
+            continue;
+        }
+        zip.extractEntryTo(entry, destination, true, true);
+    }
+    return skippedSymlinks;
+}
+function isSymlinkEntry(entry) {
+    // POSIX file type from external attributes (upper 16 bits)
+    const unixMode = (entry.attr >>> 16) & 0xffff;
+    const fileTypeMask = 0o170000;
+    const symlinkType = 0o120000;
+    return (unixMode & fileTypeMask) === symlinkType;
+}
+function isUnsafeZipEntryPath(entryName) {
+    if (entryName.startsWith('/') || entryName.includes('\0'))
+        return true;
+    const parts = entryName.split('/').filter(Boolean);
+    return parts.includes('..');
 }
 //# sourceMappingURL=unzipSvfZip.js.map
