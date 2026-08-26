@@ -25,6 +25,7 @@
 import type { FileVersionModel } from 'spinal-model-file_version_model';
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   unlinkSync,
   readdirSync,
@@ -95,9 +96,17 @@ export async function unzipSvfZip(
     try {
       const deleteFolderRecursive = (path: string) => {
         if (existsSync(path)) {
+          const pathStat = lstatSync(path);
+          if (pathStat.isSymbolicLink()) {
+            unlinkSync(path);
+            return;
+          }
           readdirSync(path).forEach((file) => {
             const curPath = join(path, file);
-            if (statSync(curPath).isDirectory()) {
+            const curPathStat = lstatSync(curPath);
+            if (curPathStat.isSymbolicLink()) {
+              unlinkSync(curPath);
+            } else if (curPathStat.isDirectory()) {
               deleteFolderRecursive(curPath);
             } else {
               unlinkSync(curPath);
@@ -118,6 +127,10 @@ function findFileInFolder(folderPath: string, filename: string): string | null {
   const files = readdirSync(folderPath);
   for (const file of files) {
     const filePath = `${folderPath}/${file}`;
+    const lstat = lstatSync(filePath);
+    if (lstat.isSymbolicLink()) {
+      continue;
+    }
     const stat = statSync(filePath);
     if (stat.isDirectory()) {
       const result = findFileInFolder(filePath, filename);
@@ -148,6 +161,10 @@ function findAllSvfInFolder(folderPath: string): string[] {
   const files = readdirSync(folderPath);
   for (const file of files) {
     const filePath = `${folderPath}/${file}`;
+    const lstat = lstatSync(filePath);
+    if (lstat.isSymbolicLink()) {
+      continue;
+    }
     const stat = statSync(filePath);
     if (stat.isDirectory()) {
       svfFiles.push(...findAllSvfInFolder(filePath));

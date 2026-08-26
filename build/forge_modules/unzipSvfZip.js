@@ -92,9 +92,18 @@ function unzipSvfZip(filename, fileVersionModel) {
             try {
                 const deleteFolderRecursive = (path) => {
                     if ((0, fs_1.existsSync)(path)) {
+                        const pathStat = (0, fs_1.lstatSync)(path);
+                        if (pathStat.isSymbolicLink()) {
+                            (0, fs_1.unlinkSync)(path);
+                            return;
+                        }
                         (0, fs_1.readdirSync)(path).forEach((file) => {
                             const curPath = (0, path_1.join)(path, file);
-                            if ((0, fs_1.statSync)(curPath).isDirectory()) {
+                            const curPathStat = (0, fs_1.lstatSync)(curPath);
+                            if (curPathStat.isSymbolicLink()) {
+                                (0, fs_1.unlinkSync)(curPath);
+                            }
+                            else if (curPathStat.isDirectory()) {
                                 deleteFolderRecursive(curPath);
                             }
                             else {
@@ -117,6 +126,10 @@ function findFileInFolder(folderPath, filename) {
     const files = (0, fs_1.readdirSync)(folderPath);
     for (const file of files) {
         const filePath = `${folderPath}/${file}`;
+        const lstat = (0, fs_1.lstatSync)(filePath);
+        if (lstat.isSymbolicLink()) {
+            continue;
+        }
         const stat = (0, fs_1.statSync)(filePath);
         if (stat.isDirectory()) {
             const result = findFileInFolder(filePath, filename);
@@ -146,6 +159,10 @@ function findAllSvfInFolder(folderPath) {
     const files = (0, fs_1.readdirSync)(folderPath);
     for (const file of files) {
         const filePath = `${folderPath}/${file}`;
+        const lstat = (0, fs_1.lstatSync)(filePath);
+        if (lstat.isSymbolicLink()) {
+            continue;
+        }
         const stat = (0, fs_1.statSync)(filePath);
         if (stat.isDirectory()) {
             svfFiles.push(...findAllSvfInFolder(filePath));
