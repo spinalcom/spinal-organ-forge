@@ -23,11 +23,10 @@
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.14.11",
     "@types/q": "^1.5.8",
+    "lodash": "^4.17.21",
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "spinal-register": "spinal-register --node-organ",
-    "create-ln": "node build/create_ln_forge_viewer_file.js",
-    "cut-postinstall": "npm run spinal-register && npm run create-ln"
+    "build": "tsc"
   }
 }

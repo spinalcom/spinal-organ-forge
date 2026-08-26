@@ -14,3 +14,4 @@ test
 .env*
 tmp
 debug
+*.log
